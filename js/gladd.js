@@ -48,6 +48,8 @@ $(document).ready(function() {
 
 	/* prepare menu */
 	prepMenu();
+    navicon();
+    navitab();
 
 	/* reload when logo clicked */
 	$("img#logo").click(function(event) {
@@ -407,6 +409,24 @@ function prepMenu() {
 	$('ul.nav').find('a').each(function() {
 		$(this).click(clickMenu);
 	});
+}
+
+function navicon() {
+    $('div.navicon').click(function() {
+        $('nav.site').toggle();
+    });
+}
+
+function navitab() {
+    $('div.navitab-box-front').text('0');
+    $('div.navitab').click(function() {
+            navitabIncrement();
+    });
+}
+
+function navitabIncrement() {
+    var c = parseInt($('div.navitab-box-front').text());
+    $('div.navitab-box-front').text(++c);
 }
 
 /*****************************************************************************/
@@ -3165,7 +3185,7 @@ function Tab(title, content, activate, collection, refresh) {
 	/* create tab in DOM */
 	this.tabli =  $('<li/>', { id: "tabli" + this.id, "class": "tabhead" });
 	this.tabli.addClass(classes);
-    this.tabhead = $('<div/>', { id: "tabhead" + this.id, "class": "tabhead"});
+    this.tabhead = $('<div/>', { id: "tabhead" + this.id, "class": "tabhead clearfix"});
 	this.tabtitle = $('<div/>', { "class": "tabtitle" });
 	this.tabtitlelink = $('<a/>', { "class": "tabtitle", href: this.id });
 	this.tabtitlelink.append(this.title);
