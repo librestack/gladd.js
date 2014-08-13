@@ -55,7 +55,7 @@ $(document).ready(function() {
 	$("img#logo").click(function(event) {
 		event.preventDefault();
 		dashboardShow();
-	});     
+	});
 
 	loginSetup();
 
@@ -65,7 +65,7 @@ $(document).ready(function() {
 		g_password = $('input:password[name=password]').val();
 		auth_check();
 	});
-	
+
 	$(window).unload(function() {
 		logout();
 	});
@@ -142,11 +142,11 @@ function auth_session_logout(async)
 	return $.ajax({
 		url: g_authurl,
 		async: async,
-		beforeSend: function (xhr) { 
+		beforeSend: function (xhr) {
 			setAuthHeader(xhr);
 			xhr.setRequestHeader("Logout", g_username);
 		},
-		complete: function(data) { 
+		complete: function(data) {
 			console.log('session logout complete');
 		},
 	});
@@ -195,7 +195,7 @@ function activeTabId() {
 function updateTab(o, content, activate, title) {
 	console.log('updateTab()');
 	/* figure out what o represents */
-	if (isTabId(o)) { 				/* numeric */
+	if (isTabId(o)) {				/* numeric */
 		var tab = TABS.byId[o];
 		tab.setContent(content);
 		tab.setTitle(title);
@@ -204,7 +204,7 @@ function updateTab(o, content, activate, title) {
 	else if (typeof o == 'object'){ /* jquery object (probably) */
 		o.empty().append(content);
 	}
-	else { 							/* unexpected type */
+	else {							/* unexpected type */
 		console.log(typeof o + ' passed to updateTab()');
 		return false;
 	}
@@ -369,16 +369,16 @@ function displayLoginBox() {
 
 	// Fade in the Popup, setting focus when done
 	$(loginBox).fadeIn(300, function () { setFocusLoginBox(); });
-	
+
 	// Set the center alignment padding + border see css style
-	var popMargTop = ($(loginBox).height() + 24) / 2; 
-	var popMargLeft = ($(loginBox).width() + 24) / 2; 
-	
-	$(loginBox).css({ 
+	var popMargTop = ($(loginBox).height() + 24) / 2;
+	var popMargLeft = ($(loginBox).width() + 24) / 2;
+
+	$(loginBox).css({
 		'margin-top' : -popMargTop,
 		'margin-left' : -popMargLeft
 	});
-	
+
 	// Fade in background mask unless already visible
 	$('#mask').fadeIn(300);
 
@@ -399,8 +399,8 @@ function setFocusLoginBox() {
 /* Hide Login Dialog */
 function hideLoginBox() {
 	$('#mask , .login-popup').fadeOut(300 , function() {
-		$('#mask').hide();  
-	}); 
+		$('#mask').hide();
+	});
 }
 
 /*****************************************************************************/
@@ -529,7 +529,7 @@ function showQuery(collection, title, sort, tab) {
 			if (tab) {
 				if (tab.children().length > 0) {
 					/* tab has contents - leave them alone on failure */
-					console.log('failed to load ' + collection 
+					console.log('failed to load ' + collection
 						+ '.  Retrying.');
 					showQuery(collection, title, sort, tab);
 					return false;
@@ -775,8 +775,8 @@ function displayForm(object, action, title, html, xml, container) {
 /*****************************************************************************/
 function finaliseForm(tab, object, action, id) {
 	console.log('finaliseForm()');
-	formatDatePickers(tab);        			  /* date pickers */
-	formatRadioButtons(tab, object);  		  /* tune the radio */
+	formatDatePickers(tab);                   /* date pickers */
+	formatRadioButtons(tab, object);		  /* tune the radio */
 	formBlurEvents(tab);					  /* set up blur() events */
 	formEvents(tab, object, action, id);      /* submit and click events etc. */
 	activateTab(tab);			              /* activate the tab */
@@ -788,7 +788,7 @@ function formEvents(tab, object, action, id) {
 	var mytab = getTabById(tab);
 
 	/* save button click handler */
-	mytab.find('button.save').click(function() 
+	mytab.find('button.save').click(function()
 	{
 		doFormSubmit(object, action, id);
 	});
@@ -869,7 +869,7 @@ function fixXMLDates(xml) {
 
 /* repackage xml as request */
 function fixXMLRequest(rawxml) {
-	
+
 	/* create a new XML request document */
 	var doc = createRequestXmlDoc(data);
 
@@ -951,7 +951,7 @@ function formatRadioButtons(tab, object) {
 function formatDatePickers(tab) {
 	var mytab = getTabById(tab);
 	mytab.find('.datefield').datepicker({
-	   	dateFormat: "yy-mm-dd",
+		dateFormat: "yy-mm-dd",
 		constrainInput: true
 	});
 }
@@ -1068,7 +1068,7 @@ function statusMessage(message, severity, fade) {
 	else if (severity == STATUS_CRIT) {
 		statusmsg.addClass('crit');
 	}
-	
+
 	statusmsg.text(message);
 	statusmsg.show();
 
@@ -1584,7 +1584,7 @@ function submitForm(object, action, id) {
 		showSpinner('Saving ' + object + '...');
 	}
 	else {
-		showSpinner(); 
+		showSpinner();
 	}
 	postXML(url, xml, object, action, id, collection);
 }
@@ -1649,7 +1649,7 @@ function submitFormSuccess(object, action, id, collection, xml) {
 
 	/* check for tabs that will need refreshing */
 	tabRefresh(collection);
-	
+
 	/* We received some data back. Display it. */
 	newid = $(xml).find(object).text();
 	if (newid) {
@@ -1819,7 +1819,7 @@ function divTable(div, xml) {
     if ($(xml).find('resources').children().length == 0) {
         console.log('No results');
         return false; /* no results */
-    }   
+    }
 
     /* build a table structure using divs */
     var formtable = $('<div class="formtable"/>');
@@ -1910,11 +1910,11 @@ function displayResultsGeneric(xml, collection, title, sorted, tab, headers) {
 		'divisions',
 		'organisations',
 		'products',
-	].indexOf(collection) != -1) 
+	].indexOf(collection) != -1)
 	{
 		refresh = true;
 	}
-	
+
 	if ($(xml).find('resources').children().length == 0) {
 		/* No results found */
 		hideSpinner();
@@ -1984,7 +1984,7 @@ function displayResultsGeneric(xml, collection, title, sorted, tab, headers) {
 					$t += $(this).text();
 				}
 				/* add trailing space if numeric value and positive */
-				if ((this.tagName == 'debit') || (this.tagName == 'credit') 
+				if ((this.tagName == 'debit') || (this.tagName == 'credit')
 				 || (this.tagName == 'total') || (this.tagName == 'amount')
 				 || (this.tagName == 'tax') || (this.tagName == 'subtotal'))
 				{
@@ -2030,8 +2030,8 @@ function displayResultsGeneric(xml, collection, title, sorted, tab, headers) {
 	/* make our table pretty and sortable */
 	if (sorted) {
 		getTabById(tab).find(".datatable").tablesorter({
-			sortList: [[0,0], [1,0]], 
-			widgets: ['zebra'] 
+			sortList: [[0,0], [1,0]],
+			widgets: ['zebra']
 		});
 	}
 
@@ -2194,7 +2194,7 @@ function showBusinessSelector(xml) {
 		var name = $(this).find('name').text();
 		select.append($("<option />").val(id).text(name));
 	});
-	
+
 	select.change(function() {
 		switchBusiness($(this).val());
 	});
@@ -2240,7 +2240,7 @@ function mapUpdate() {
 	var addressFields = ['line_1','line_2','line_3','town','county',
             'country','postcode'];
 	var geodata = new Array();
-	var selector = addressFields.join('"],input[name="'); 
+	var selector = addressFields.join('"],input[name="');
 	selector = 'input[name="' + selector + '"]';
 	mytab.find(selector).each(function() {
 		if ($(this).val().length > 0) { geodata.push($(this).val()); }
@@ -2327,14 +2327,14 @@ function isDate(datestring) {
 /* setTimeout hacks 
   source: https://developer.mozilla.org/en-US/docs/Web/API/Window.setTimeout */
 var __nativeST__ = window.setTimeout, __nativeSI__ = window.setInterval;
- 
+
 window.setTimeout = function (vCallback, nDelay /*, argumentToPass1, argumentToPass2, etc. */) {
   var oThis = this, aArgs = Array.prototype.slice.call(arguments, 2);
   return __nativeST__(vCallback instanceof Function ? function () {
     vCallback.apply(oThis, aArgs);
   } : vCallback, nDelay);
 };
- 
+
 window.setInterval = function (vCallback, nDelay /*, argumentToPass1, argumentToPass2, etc. */) {
   var oThis = this, aArgs = Array.prototype.slice.call(arguments, 2);
   return __nativeSI__(vCallback instanceof Function ? function () {
@@ -2468,7 +2468,7 @@ Form.prototype.fetchData = function() {
 	console.log('Form().fetchData()');
 	var d = new Array(); /* array of deferreds */
 	d.push(getHTML(form_url(this)));
-	if (this.action !== 'create' && this['FORMDATA'] === undefined 
+	if (this.action !== 'create' && this['FORMDATA'] === undefined
     && this.id !== undefined)
     {
 		d.push(getXML(collection_url(this.collection) + this.id));
@@ -2635,7 +2635,7 @@ Form.prototype.populate = function() {
                 if (tagName == 'id' || tagName == this.object) {
                     form.id = tagValue; /* grab id */
                 }
-                var fld = w.find('form.' + form.object 
+                var fld = w.find('form.' + form.object
                     + ' [name="' + tagName + '"]');
                 if (fld.length > 0) {
                     fld.val(tagValue); /* set field value */
@@ -2769,7 +2769,7 @@ Form.prototype.rowAdd = function(subform) {
             $(this).attr('placeholder', $(this).data('placeholder.orig'));
         }
     });
-    row.find('select').each(function() { 
+    row.find('select').each(function() {
         $(this).val($(this).find('option:first').val());
     });
 
@@ -2816,8 +2816,8 @@ Form.prototype.rowMultiply = function(ctl) {
             var q = Big(0);
             if ($(this).val() === '') {
                 /* val is blank, use placeholder if numeric */
-                if ($(this).attr('placeholder') !== undefined 
-                && !isNaN($(this).attr('placeholder'))) 
+                if ($(this).attr('placeholder') !== undefined
+                && !isNaN($(this).attr('placeholder')))
                 {
                     q = Big($(this).attr('placeholder'));
                 }
@@ -2847,8 +2847,8 @@ Form.prototype.rowSum = function(ctl) {
         row.find('.addend').each(function() {
             if ($(this).val() === '') {
                 /* val is blank, use placeholder if numeric */
-                if ($(this).attr('placeholder') !== undefined 
-                && !isNaN($(this).attr('placeholder'))) 
+                if ($(this).attr('placeholder') !== undefined
+                && !isNaN($(this).attr('placeholder')))
                 {
                     sum.val(decimalAdd(sum.val(),$(this).attr('placeholder')));
                 }
@@ -2891,7 +2891,7 @@ Form.prototype.submit = function() {
 
 	xml += '<' + this.object + '>';
     var tag;
-    var form = this.tab.tablet.find('div.' + this.object + '.' + this.action 
+    var form = this.tab.tablet.find('div.' + this.object + '.' + this.action
         + ' form');
     var inputs = form.find('div.td').children();
     if (inputs.length === 0) inputs = form.find('input,select');
@@ -2906,7 +2906,7 @@ Form.prototype.submit = function() {
             /* open subform tag? */
             if (subform.length === 1) {
                 if ($(this).closest('div.td').is(':first-child')
-                && $(this).is(':first-child')) 
+                && $(this).is(':first-child'))
                 {
                     /* use data-tag if available, otherwise data-object */
                     if (subform.data('tag') !== undefined) {
@@ -2928,7 +2928,7 @@ Form.prototype.submit = function() {
             /* save anything that has changed */
             if (name) {
                 if ((!$(this).hasClass('nosubmit')
-                && $(this).val() !== $(this).data('old')) 
+                && $(this).val() !== $(this).data('old'))
                 && (!($(this).data('old') === undefined &&
                 $(this).val() === '')))
                 {
@@ -2955,7 +2955,7 @@ Form.prototype.submit = function() {
             /* close subform tag ? */
             if (subform.length === 1) {
                 if ($(this).closest('div.td').is(':last-child')
-                && $(this).is(':last-child')) 
+                && $(this).is(':last-child'))
                 {
                     xml += '</' + tag + '>';
                 }
