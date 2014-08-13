@@ -406,7 +406,7 @@ function hideLoginBox() {
 /*****************************************************************************/
 /* prepare static menus */
 function prepMenu() {
-	$('ul.nav').find('a').each(function() {
+	$('nav.site ul').find('a').each(function() {
 		$(this).click(clickMenu);
 	});
 }
