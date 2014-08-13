@@ -2994,6 +2994,9 @@ Form.prototype.submitError = function(xhr, s, err) {
 Form.prototype.submitErrorCustom = function(xhr, s, err) {
 	return false;
 }
+Form.prototype.submitSuccessCustom = function(xhr, s, err) {
+	return false;
+}
 
 Form.prototype.submitSuccess = function(xml) {
 	console.log('form submitted successfully');
