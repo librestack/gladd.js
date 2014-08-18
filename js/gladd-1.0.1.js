@@ -1,6 +1,6 @@
 /* 
  * gladd.js - gladd helper functions
- *
+ * 
  * this file is part of GLADD
  *
  * Copyright (c) 2012, 2013, 2014 Brett Sheffield <brett@gladbooks.com>
@@ -20,6 +20,7 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
+var g_gladd_version = '1.0.1'
 var g_authurl = '/auth/';
 var g_url_form = '/html/forms/';
 var g_authtimeout = 60000; /* milliseconds - every 60s */
