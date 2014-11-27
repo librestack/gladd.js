@@ -20,7 +20,7 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-var g_gladd_version = '1.0.1'
+var g_gladd_version = '1.0.2'
 var g_authurl = '/auth/';
 var g_url_form = '/html/forms/';
 var g_authtimeout = 60000; /* milliseconds - every 60s */
@@ -1058,6 +1058,7 @@ function statusMessage(message, severity, fade) {
 		var statusmsg = activeTab().find('div.statusmsg');
 	}
 
+    statusmsg.stop(true, true); /* stop any animations in progress */
 	statusmsg.removeClass('info warn crit');
 
 	if (severity == STATUS_INFO) {
