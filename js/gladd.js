@@ -21,6 +21,7 @@
  */
 
 var g_gladd_version = '1.0.2'
+console.log('Loaded gladd.js version ' + g_gladd_version);
 var g_authurl = '/auth/';
 var g_url_form = '/html/forms/';
 var g_authtimeout = 60000; /* milliseconds - every 60s */
