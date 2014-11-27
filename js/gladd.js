@@ -1676,6 +1676,10 @@ function submitFormSuccess(object, action, id, collection, xml) {
 		console.log('refreshing data entry form');
 		getForm(object, action, TABS.active.title);
 	}
+    else { /* update, so check tab title is correct */
+        var title = $(xml).find('name').first().text();
+        TABS.active.setTitle(title);
+    }
 
 	hideSpinner();
 }
