@@ -1649,9 +1649,6 @@ function submitFormSuccess(object, action, id, collection, xml) {
         return;
     }
 
-	/* check for tabs that will need refreshing */
-	tabRefresh(collection);
-
 	/* We received some data back. Display it. */
 	newid = $(xml).find(object).text();
 	if (newid) {
@@ -1676,7 +1673,6 @@ function submitFormSuccess(object, action, id, collection, xml) {
 	if (action == 'create') {
 		/* clear form ready for more data entry */
 		console.log('refreshing data entry form');
-		//getForm(object, action, null, null, activeTabId());
 		getForm(object, action, TABS.active.title);
 	}
 
