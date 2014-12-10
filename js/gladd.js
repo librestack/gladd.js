@@ -955,9 +955,9 @@ function formatDatePickers(tab) {
 	mytab.find('.datefield').datepicker({
 		dateFormat: "yy-mm-dd",
 		constrainInput: true,
-        onClose: function(dateText, inst) {
-            this.focus(); /* set focus back to parent control on close */
-        }
+		onClose: function(dateText, inst) {
+			this.focus(); /* set focus back to parent control on close */
+		}
 	});
 }
 
