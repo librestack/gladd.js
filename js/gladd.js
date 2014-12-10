@@ -2992,7 +2992,7 @@ Form.prototype.submitError = function(xhr, s, err) {
 			STATUS_CRIT);
 	}
 	else if (!this.submitErrorCustom(xhr, s, err)) {
-		statusMessage('Error saving ' + object, STATUS_CRIT);
+		statusMessage('Error saving ' + this.object, STATUS_CRIT);
 	}
 }
 
