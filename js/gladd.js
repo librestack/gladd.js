@@ -957,7 +957,13 @@ function formatDatePickers(tab) {
 		constrainInput: true,
 		onClose: function(dateText, inst) {
 			this.focus(); /* set focus back to parent control on close */
+		},
+	}).change(function() {
+		/* Revert to previous value if date invalid */
+		if (!(isDate($(this).val())) && ($(this).val().length > 0)) {
+			$(this).val($(this).data('prevValue'));
 		}
+		$(this).data('prevValue', $(this).val());
 	});
 }
 
