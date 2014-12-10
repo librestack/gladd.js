@@ -954,7 +954,10 @@ function formatDatePickers(tab) {
 	var mytab = getTabById(tab);
 	mytab.find('.datefield').datepicker({
 		dateFormat: "yy-mm-dd",
-		constrainInput: true
+		constrainInput: true,
+        onClose: function(dateText, inst) {
+            this.focus(); /* set focus back to parent control on close */
+        }
 	});
 }
 
