@@ -2438,6 +2438,23 @@ Form.prototype.dataSources = function() {
     return sources;
 }
 
+/* http DELETE element */
+Form.prototype.delete = function() {
+	var form = this;
+	return $.ajax({
+        url: this.url,
+        type: 'DELETE',
+        timeout: g_timeout,
+        beforeSend: function (xhr) { setAuthHeader(xhr); },
+        success: function(xml) {
+			form.submitSuccess(xml);
+		},
+        error: function(xhr, s, err) {
+			form.submitError(xhr, s, err);
+        }
+    });
+}
+
 /* Set up Form events */
 Form.prototype.events = function() {
 	console.log('Form().events()');
@@ -2682,6 +2699,7 @@ Form.prototype._populateSubforms = function() {
     if (subform.length === 0) {
         subform = this.workspace.find('form div.form');
         subform.each(function() {
+            console.log('populating subform...');
             var source = $(this).data('source');
             if (source === undefined) {
                 source = $(this).data('tag') + 's';
@@ -2899,6 +2917,15 @@ Form.prototype.show = function(tab) {
 /* submit form */
 Form.prototype.submit = function() {
 	console.log('Form().submit() => ' + this.url);
+    if (this.action === 'delete') {
+        if (!(confirm('Delete ' + this.object  + ' #' + this.id + '?'))) {
+            console.log('User cancelled delete');
+            return false;
+        }
+        console.log('User confirmed delete');
+        statusMessage('Deleting ' + this.object + ' #' + this.id, STATUS_INFO);
+        return this.delete();
+    }
 	var xml = createRequestXml();
 
 	xml += '<' + this.object + '>';
