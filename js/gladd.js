@@ -3025,7 +3025,14 @@ Form.prototype.submitError = function(xhr, s, err) {
 			STATUS_CRIT);
 	}
 	else if (!this.submitErrorCustom(xhr, s, err)) {
-		statusMessage('Error saving ' + this.object + ': ' + err, STATUS_CRIT);
+        var xml = xhr.responseXML;
+        var responsecode = $(xml).find('responsecode').text();
+        var responsetext = $(xml).find('responsetext').text();
+        if (responsetext) {
+            err = responsetext;
+        }
+		statusMessage('Unable to save ' + this.object + ': ' + responsetext,
+                STATUS_CRIT);
 	}
 }
 
