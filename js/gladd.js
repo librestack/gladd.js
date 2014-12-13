@@ -2411,6 +2411,7 @@ function Form(object, action, title, id) {
 	this.title = title;
 	this.data = {};
 	this.sources = this.dataSources();
+    this.prompts = {};
 }
 
 /* Activate this Form's Tab, .show()ing it first if needed */
@@ -2524,6 +2525,7 @@ Form.prototype.finalize = function() {
 	this.events();
     this.updateMap();
     this.updateAllTotals();
+    this.overrides();
 }
 
 Form.prototype.formatDatePickers = function() {
@@ -2625,6 +2627,11 @@ Form.prototype.onChange = function(ctl) {
         ctl.val(decimalPad(roundHalfEven(ctl.val(), 2), 2));
     }
     if (ctl.hasClass('sum')) this.updateFormTotals(ctl);
+}
+
+/* to be overridden by application */
+Form.prototype.overrides = function() {
+	/* override object variables etc. */
 }
 
 /* Fill html form with data */
@@ -2918,12 +2925,23 @@ Form.prototype.show = function(tab) {
 Form.prototype.submit = function() {
 	console.log('Form().submit() => ' + this.url);
     if (this.action === 'delete') {
-        if (!(confirm('Delete ' + this.object  + ' #' + this.id + '?'))) {
+        if (this.prompts['delete']) {
+            var q = this.prompts['delete'];
+        }
+        else {
+            var q = 'Delete ' + this.object  + ' #' + this.id + '?';
+        }
+        if (!(confirm(q))) {
             console.log('User cancelled delete');
             return false;
         }
         console.log('User confirmed delete');
-        statusMessage('Deleting ' + this.object + ' #' + this.id, STATUS_INFO);
+        if (this.prompts[this.action + 'status']) {
+            showSpinner(this.prompts[this.action + 'status']);
+        }
+        else {
+            showSpinner('Deleting ' + this.object + ' #' + this.id + '...');
+        }
         return this.delete();
     }
 	var xml = createRequestXml();
@@ -3007,7 +3025,10 @@ Form.prototype.submit = function() {
 	this.xml += '</data></request>';
 	console.log(this.xml);
 	/* tell user to wait */
-	if (this.action === 'create' || this.action === 'update') {
+	if (this.prompts[this.action + 'status']) {
+		showSpinner(this.prompts[this.action + 'status']);
+    }
+    else if (this.action === 'create' || this.action === 'update') {
 		showSpinner('Saving ' + this.object + '...');
 	}
 	else {
