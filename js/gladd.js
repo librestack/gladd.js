@@ -2423,6 +2423,10 @@ Form.prototype.activate = function() {
 	return this;
 }
 
+Form.prototype.clean = function() {
+    this.tab.find('.dirty').removeClass('dirty');
+}
+
 /* to be overridden by application */
 Form.prototype.customXML = function() {
 	/* append any extra bits to this.xml */
@@ -2490,6 +2494,11 @@ Form.prototype.events = function() {
 	t.find('.onchange').off().change(function() {
         form.onChange($(this));
         return false;
+    });
+    t.find('input,select').filter(':not([readonly])').change(function() {
+        if ($(this).val() !== $(this).data('old')) {
+            $(this).addClass('dirty');
+        }
     });
     customFormEvents(this.tab, this.object, this.action, this.id);
 }
@@ -2718,7 +2727,8 @@ Form.prototype._populateSubforms = function() {
             var datarows = data.find('row');
             var subrows = subform.find('div.subformwrapper div.tr');
             for (i = subrows.length; i < datarows.length; i++) {
-                form.rowAdd(subform);
+                var row = form.rowAdd(subform);
+                row.find('.dirty').removeClass('dirty');
             }
             subrows = subform.find('div.subformwrapper div.tr');
             $.each(datarows, function(i, d) {
@@ -2729,6 +2739,9 @@ Form.prototype._populateSubforms = function() {
                     var tagValue = $(tag).text();
                     var ctl = subrows.eq(i).find('[name="'+ tagName +'"]');
                     ctl.val(tagValue);
+                    console.log(tagValue);
+                    //ctl.data('old') = tagValue;
+                    ctl.removeClass('dirty');
                     if (ctl.hasClass('formfill')) form.formFill(ctl);
                 });
             });
@@ -2799,11 +2812,16 @@ Form.prototype.rowAdd = function(subform) {
     row.removeData();
     row.find('input').each(function() {
         var d = $(this).data('default');
+        if ($(this).is('[readonly]') === false) {
+            $(this).addClass('dirty'); /* new row - mark all writable fields dirty */
+        }
         if (d !== undefined) {
             $(this).val(d);
+            $(this).data('old', d);/* note the unmodifed value */
         }
         else {
             $(this).val('');
+            $(this).data('old', '');/* note the unmodifed value */
         }
         /* reset placeholder */
         if ($(this).data('placeholder.orig') !== undefined) {
@@ -2811,7 +2829,10 @@ Form.prototype.rowAdd = function(subform) {
         }
     });
     row.find('select').each(function() {
-        $(this).val($(this).find('option:first').val());
+        var d = $(this).find('option:first').val();
+        $(this).val(d);
+        $(this).data('old', d);
+        $(this).addClass('dirty');
     });
 
     var wrapper = subform.find('div.subformwrapper');
@@ -2822,6 +2843,7 @@ Form.prototype.rowAdd = function(subform) {
     else {
         subform.append(row);
     }
+    return row;
 }
 
 /* Delete a row.  Actually, we hide it and mark it deleted so it is deleted
@@ -2839,6 +2861,7 @@ Form.prototype.rowDelete = function(ctl) {
         td.children(':not(.stet)').remove();
         td.append('<input type="hidden"/>'); /* placeholder for record */
         row.data('deleted', 'true');
+        row.addClass('dirty');
     }
     this.updateAllTotals();
 }
@@ -2948,6 +2971,14 @@ Form.prototype.submit = function() {
         }
         return this.delete();
     }
+
+    var changed = this.tab.find('.dirty');
+    console.log(changed.length + ' field(s) have changed.');
+    if (changed.length === 0) {
+        console.log("nothing to save - skipping");
+        return false; /* nothing to save */
+    }
+
 	var xml = createRequestXml();
 
 	xml += '<' + this.object + '>';
@@ -2955,7 +2986,7 @@ Form.prototype.submit = function() {
     var form = this.tab.tablet.find('div.' + this.object + '.' + this.action
         + ' form');
     var inputs = form.find('div.td').children();
-    if (inputs.length === 0) inputs = form.find('input,select');
+    if (inputs.length === 0) inputs = form.find('input,select').filter('dirty');
     inputs.each(function() {
 		var name = $(this).attr('name');
         /* process everything except checkboxes */
@@ -3072,6 +3103,7 @@ Form.prototype.submitSuccessCustom = function(xhr, s, err) {
 Form.prototype.submitSuccess = function(xml) {
 	console.log('form submitted successfully');
 	hideSpinner();
+    this.clean();
 
 	TABS.refresh(this.collection); /* refresh any tabs for this collection */
 
