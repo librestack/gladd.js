@@ -2412,6 +2412,7 @@ function Form(object, action, title, id) {
 	this.data = {};
 	this.sources = this.dataSources();
     this.prompts = {};
+    this.subforms = 0;
 }
 
 /* Activate this Form's Tab, .show()ing it first if needed */
@@ -2706,6 +2707,7 @@ Form.prototype._populateSubforms = function() {
     if (subform.length === 0) {
         subform = this.workspace.find('form div.form');
         subform.each(function() {
+            form.subforms++;
             console.log('populating subform...');
             var source = $(this).data('source');
             if (source === undefined) {
@@ -2735,10 +2737,12 @@ Form.prototype._populateSubforms = function() {
     else {
         /* deprecated - used by organisations form */
         subform.each(function() {
+            form.subforms++;
             var view = $(this).attr('action');
             loadSubformData(view, form.id, form.tab.id);
         });
     }
+    console.log('Data loaded for ' + form.subforms + ' subform(s)');
 }
 
 /* POST data */
