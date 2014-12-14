@@ -2985,74 +2985,70 @@ Form.prototype.submit = function() {
     var tag;
     var form = this.tab.tablet.find('div.' + this.object + '.' + this.action
         + ' form');
-    var inputs = form.find('div.td').children();
-    if (inputs.length === 0) inputs = form.find('input,select').filter('dirty');
+    var inputs = form.find('input,select').filter('.dirty');
+    var dirtyflds = 0;
+    console.log(inputs.length + ' inputs etc found');
     inputs.each(function() {
 		var name = $(this).attr('name');
-        /* process everything except checkboxes */
-        if ($(this).attr('type') !== "checkbox") {
-            /* not a checkbox */
-            if (name) console.log(name + '=' + $(this).val());
-            var subform = $(this).closest('div.form');
+        var subform = $(this).closest('div.form');
 
-            /* open subform tag? */
-            if (subform.length === 1) {
-                if ($(this).closest('div.td').is(':first-child')
-                && $(this).is(':first-child'))
-                {
-                    /* use data-tag if available, otherwise data-object */
-                    if (subform.data('tag') !== undefined) {
-                        tag = subform.data('tag');
-                    }
-                    else {
-                        tag = subform.data('object');
-                    }
-                    /* tack in attributes */
-                    var attrs = '';
-                    var id = $(this).closest('div.tr').data('id');
-                    var del = $(this).closest('div.tr').data('deleted');
-                    if (id !== undefined) attrs += ' id="' + id + '"';
-                    if (del !== undefined) attrs += ' is_deleted="true"';
-                    xml += '<' + tag + attrs + '>';
+        /* open subform tag? */
+        if (subform.length === 1) {
+            var tr = $(this).closest('div.tr');
+            if (!(tr.hasClass('_subform'))) {
+                dirtyflds = tr.find('.dirty').length;
+                /* use data-tag if available, otherwise data-object */
+                if (subform.data('tag') !== undefined) {
+                    tag = subform.data('tag');
                 }
+                else {
+                    tag = subform.data('object');
+                }
+                /* tack in attributes */
+                var attrs = '';
+                var id = $(this).closest('div.tr').data('id');
+                var del = $(this).closest('div.tr').data('deleted');
+                if (id !== undefined) attrs += ' id="' + id + '"';
+                if (del !== undefined) attrs += ' is_deleted="true"';
+                xml += '<' + tag + attrs + '>';
+                tr.addClass('_subform');
             }
+        }
 
-            /* save anything that has changed */
-            if (name) {
-                if ((!$(this).hasClass('nosubmit')
-                && $(this).val() !== $(this).data('old'))
-                && (!($(this).data('old') === undefined &&
-                $(this).val() === '')))
-                {
-                    console.log(name + ' has changed from "'
-                        + $(this).data('old') + '" to "' + $(this).val()
-                        + '"');
-                    var myval = $(this).val();
-                    if (Array.isArray(myval) === false) {
-                        myval = [ myval ];
-                    }
-                    for (var i=0; i < myval.length; i++) {
-                        var o = new Object();
-                        if (customFormFieldHandler($(this), o) === true) {
-                            xml += o.xml;
-                        } else {
-                            xml += '<' + name + '>';
-                            xml += escapeHTML(myval[i]);
-                            xml += '</' + name + '>';
-                        }
+        /* save anything that has changed */
+        if (name) {
+            if ((!$(this).hasClass('nosubmit')
+            && $(this).val() !== $(this).data('old'))
+            && (!($(this).data('old') === undefined &&
+            $(this).val() === '')))
+            {
+                console.log(name + ' has changed from "'
+                    + $(this).data('old') + '" to "' + $(this).val()
+                    + '"');
+                var myval = $(this).val();
+                if (Array.isArray(myval) === false) {
+                    myval = [ myval ];
+                }
+                for (var i=0; i < myval.length; i++) {
+                    var o = new Object();
+                    if (customFormFieldHandler($(this), o) === true) {
+                        xml += o.xml;
+                    } else {
+                        xml += '<' + name + '>';
+                        xml += escapeHTML(myval[i]);
+                        xml += '</' + name + '>';
                     }
                 }
             }
+        }
 
-            /* close subform tag ? */
-            if (subform.length === 1) {
-                if ($(this).closest('div.td').is(':last-child')
-                && $(this).is(':last-child'))
-                {
-                    xml += '</' + tag + '>';
-                }
+        /* close subform tag ? */
+        if (subform.length === 1) {
+            if (--dirtyflds === 0) {
+                xml += '</' + tag + '>';
+                tr.removeClass('_subform');
             }
-		}
+        }
 	});
 	this.xml = xml;
 	this.customXML();
