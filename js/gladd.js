@@ -2094,6 +2094,8 @@ function collection_url(collection) {
 /*****************************************************************************/
 /* Javascript has no decimal type, so we need to teach it how to add up */
 function decimalAdd(x, y) {
+    if (!($.isNumeric(x))) x = '0.00';
+    if (!($.isNumeric(y))) y = '0.00';
 	x = new Big(x);
 	y = new Big(y);
 	return x.plus(y);
@@ -2740,7 +2742,7 @@ Form.prototype._populateSubforms = function() {
                     var ctl = subrows.eq(i).find('[name="'+ tagName +'"]');
                     ctl.val(tagValue);
                     console.log(tagValue);
-                    //ctl.data('old') = tagValue;
+                    ctl.data('old', tagValue);
                     ctl.removeClass('dirty');
                     if (ctl.hasClass('formfill')) form.formFill(ctl);
                 });
@@ -2781,12 +2783,13 @@ Form.prototype.reset = function() {
     console.log('Form().reset()');
     var t = this.tab.tablet;
     var f = t.find('form');
-    f.get(0).reset();
     /* re-populate form */
-    f.find('input,select').each(function() {
+    f.find('input,select').filter('.dirty').each(function() {
+        console.log($(this).attr("name"));
         if (($(this).val() !== $(this).data('old'))
         && ($(this).data('old') !== undefined))
         {
+            console.log('resetting value to ' + $(this).data('old'));
             $(this).val($(this).data('old'));
         }
         /* reset placeholder */
@@ -2794,10 +2797,12 @@ Form.prototype.reset = function() {
             $(this).attr('placeholder', $(this).data('placeholder.orig'));
             $(this).trigger('change');
         }
+        $(this).removeClass('dirty');
     });
-    /* reset subforms */
-    f.find('div.form div.tr.sub:not(:first)').remove();
-    this._populateSubforms();
+    /* restore deleted rows */
+    f.find('div.tr').filter('.dirty').each(function() {
+        $(this).removeClass('dirty hidden');
+    });
     this.updateAllTotals();
     statusHide(); /* clear status Message */
 }
@@ -2815,14 +2820,8 @@ Form.prototype.rowAdd = function(subform) {
         if ($(this).is('[readonly]') === false) {
             $(this).addClass('dirty'); /* new row - mark all writable fields dirty */
         }
-        if (d !== undefined) {
-            $(this).val(d);
-            $(this).data('old', d);/* note the unmodifed value */
-        }
-        else {
-            $(this).val('');
-            $(this).data('old', '');/* note the unmodifed value */
-        }
+        $(this).val((d !== undefined) ? d : '');
+        $(this).data('old', $(this).val('')); /* note the unmodified value */
         /* reset placeholder */
         if ($(this).data('placeholder.orig') !== undefined) {
             $(this).attr('placeholder', $(this).data('placeholder.orig'));
@@ -2856,12 +2855,9 @@ Form.prototype.rowDelete = function(ctl) {
         row.remove();
     }
     else {                  /* row needs to be marked deleted on the server */
-        row.hide();
         var td = row.find('div.td');
-        td.children(':not(.stet)').remove();
-        td.append('<input type="hidden"/>'); /* placeholder for record */
-        row.data('deleted', 'true');
-        row.addClass('dirty');
+        row.addClass('dirty hidden');
+        row.find('.currency').val('0.00').addClass('dirty');
     }
     this.updateAllTotals();
 }
@@ -2985,16 +2981,16 @@ Form.prototype.submit = function() {
     var tag;
     var form = this.tab.tablet.find('div.' + this.object + '.' + this.action
         + ' form');
-    var inputs = form.find('input,select').filter('.dirty');
+    var inputs = form.find('input,select,div.tr').filter('.dirty');
     var dirtyflds = 0;
     console.log(inputs.length + ' inputs etc found');
     inputs.each(function() {
 		var name = $(this).attr('name');
         var subform = $(this).closest('div.form');
+        var tr = $(this).closest('div.tr');
 
         /* open subform tag? */
         if (subform.length === 1) {
-            var tr = $(this).closest('div.tr');
             if (!(tr.hasClass('_subform'))) {
                 dirtyflds = tr.find('.dirty').length;
                 /* use data-tag if available, otherwise data-object */
@@ -3007,16 +3003,16 @@ Form.prototype.submit = function() {
                 /* tack in attributes */
                 var attrs = '';
                 var id = $(this).closest('div.tr').data('id');
-                var del = $(this).closest('div.tr').data('deleted');
                 if (id !== undefined) attrs += ' id="' + id + '"';
-                if (del !== undefined) attrs += ' is_deleted="true"';
+                if (tr.hasClass('hidden')) attrs += ' is_deleted="true"';
+                if ($(this).is('div.tr')) attrs += '/';
                 xml += '<' + tag + attrs + '>';
                 tr.addClass('_subform');
             }
         }
 
         /* save anything that has changed */
-        if (name) {
+        if (name && tr.is(':visible')) {
             if ((!$(this).hasClass('nosubmit')
             && $(this).val() !== $(this).data('old'))
             && (!($(this).data('old') === undefined &&
@@ -3043,7 +3039,7 @@ Form.prototype.submit = function() {
         }
 
         /* close subform tag ? */
-        if (subform.length === 1) {
+        if (subform.length === 1 && tr.is(':visible')) {
             if (--dirtyflds === 0) {
                 xml += '</' + tag + '>';
                 tr.removeClass('_subform');
