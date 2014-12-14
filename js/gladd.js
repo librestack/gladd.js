@@ -2783,7 +2783,6 @@ Form.prototype.reset = function() {
     console.log('Form().reset()');
     var t = this.tab.tablet;
     var f = t.find('form');
-    /* re-populate form */
     f.find('input,select').filter('.dirty').each(function() {
         console.log($(this).attr("name"));
         if (($(this).val() !== $(this).data('old'))
