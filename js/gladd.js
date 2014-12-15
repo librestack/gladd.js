@@ -35,6 +35,7 @@ var g_max_tabtitle = '48'; /* max characters to allow in tab title */
 var g_session = false;
 var TABS = new Tabs();
 var g_timeout = 10000; /* timeout for ajax requests */
+var g_warnlogout = false; /* warn user if they reload/logout ? */
 
 var STATUS_INFO = 1;
 var STATUS_WARN = 2;
@@ -42,6 +43,12 @@ var STATUS_CRIT = 4;
 
 /*****************************************************************************/
 $(document).ready(function() {
+    window.onbeforeunload = function() {
+        if (g_warnlogout && g_loggedin) {
+            /* NB: this message can't be changed from the default in Firefox */
+            return 'Please ensure you have saved your work before logging out';
+        }
+    };
 	/* no password, display login dialog */
 	if (g_password == '') { displayLoginBox(); }
 
