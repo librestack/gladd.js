@@ -2422,6 +2422,7 @@ function Form(object, action, title, id) {
 	this.sources = this.dataSources();
     this.prompts = {};
     this.subforms = 0;
+    this.usesubrequests = false; /* if true, post subforms separately */
 }
 
 /* Activate this Form's Tab, .show()ing it first if needed */
@@ -2807,7 +2808,7 @@ Form.prototype.reset = function() {
     });
     /* restore deleted rows */
     f.find('div.tr').filter('.dirty').each(function() {
-        $(this).removeClass('dirty hidden');
+        $(this).removeClass('dirty deleted hidden');
     });
     this.updateAllTotals();
     statusHide(); /* clear status Message */
@@ -2862,7 +2863,7 @@ Form.prototype.rowDelete = function(ctl) {
     }
     else {                  /* row needs to be marked deleted on the server */
         var td = row.find('div.td');
-        row.addClass('dirty hidden');
+        row.addClass('dirty deleted hidden');
         row.find('.currency').val('0.00').addClass('dirty');
     }
     this.updateAllTotals();
@@ -2982,23 +2983,30 @@ Form.prototype.submit = function() {
     }
 
 	var xml = createRequestXml();
+    var xmlsub = '';
+    var subrequest = false;
 
 	xml += '<' + this.object + '>';
     var tag;
     var form = this.tab.tablet.find('div.' + this.object + '.' + this.action
         + ' form');
-    var inputs = form.find('input,select,div.tr').filter('.dirty');
+    var inputs = form.find('input,select,div.tr');
+    if (this.action !== 'create') {
+        inputs = inputs.filter('.dirty');
+    }
     var dirtyflds = 0;
+    var f = this;
     console.log(inputs.length + ' inputs etc found');
     inputs.each(function() {
 		var name = $(this).attr('name');
         var subform = $(this).closest('div.form');
         var tr = $(this).closest('div.tr');
+        var deleted = tr.hasClass('deleted');
 
         /* open subform tag? */
         if (subform.length === 1) {
             if (!(tr.hasClass('_subform'))) {
-                dirtyflds = tr.find('.dirty').length;
+                dirtyflds = tr.find('.dirty').filter(':not(.nosubmit)').length;
                 /* use data-tag if available, otherwise data-object */
                 if (subform.data('tag') !== undefined) {
                     tag = subform.data('tag');
@@ -3009,16 +3017,32 @@ Form.prototype.submit = function() {
                 /* tack in attributes */
                 var attrs = '';
                 var id = $(this).closest('div.tr').data('id');
-                if (id !== undefined) attrs += ' id="' + id + '"';
-                if (tr.hasClass('hidden')) attrs += ' is_deleted="true"';
+                if (id !== undefined) {
+                    attrs += ' id="' + id + '"';
+                }
+                else if (form.usesubrequests) {
+                    /* subform has no id - send as separate request */
+                    xmlsub = createRequestXml();
+                    subrequest = true;
+                }
+                else {
+                    /* subform has no id - track it with a uuid */
+                    attrs += ' uuid="' + UUID().toString() + '"';
+                }
+                if (deleted) attrs += ' is_deleted="true"';
                 if ($(this).is('div.tr')) attrs += '/';
-                xml += '<' + tag + attrs + '>';
+                xmlsub += '<' + tag + attrs + '>';
+                if (subrequest) {
+                    xmlsub += '<' + f.object + '>';
+                    xmlsub += f.id;
+                    xmlsub += '</' + f.object + '>';
+                }
                 tr.addClass('_subform');
             }
         }
 
         /* save anything that has changed */
-        if (name && tr.is(':visible')) {
+        if (name && !deleted) {
             if ((!$(this).hasClass('nosubmit')
             && $(this).val() !== $(this).data('old'))
             && (!($(this).data('old') === undefined &&
@@ -3034,11 +3058,11 @@ Form.prototype.submit = function() {
                 for (var i=0; i < myval.length; i++) {
                     var o = new Object();
                     if (customFormFieldHandler($(this), o) === true) {
-                        xml += o.xml;
+                        xmlsub += o.xml;
                     } else {
-                        xml += '<' + name + '>';
-                        xml += escapeHTML(myval[i]);
-                        xml += '</' + name + '>';
+                        xmlsub += '<' + name + '>';
+                        xmlsub += escapeHTML(myval[i]);
+                        xmlsub += '</' + name + '>';
                     }
                 }
             }
@@ -3047,9 +3071,25 @@ Form.prototype.submit = function() {
         /* close subform tag ? */
         if (subform.length === 1 && tr.is(':visible')) {
             if (--dirtyflds === 0) {
-                xml += '</' + tag + '>';
+                xmlsub += '</' + tag + '>';
+                if (subrequest) {
+                    /* post subform */
+                    xmlsub += '</data></request>';
+                    var collection = tag + 's';
+                    var subform = new Form(collection, 'create');
+	                subform.url = collection_url(collection);
+                    subform.xml = xmlsub;
+                    subform.customXML();
+                    subform.post();
+                    xmlsub = '';
+                    subrequest = false;
+                }
                 tr.removeClass('_subform');
             }
+        }
+        if (!subrequest) {
+            xml += xmlsub;
+            xmlsub = '';
         }
 	});
 	this.xml = xml;
@@ -3508,4 +3548,34 @@ function stripXmlFields(xml, fields) {
 		xml.find(fields[i]).remove();
 	}
 	return xml;
+}
+
+/*
+ * UUID()
+ * JavaScript UUID Generator, v0.0.1
+ *
+ * Copyright (c) 2009 Massimo Lombardo.
+ * Dual licensed under the MIT and the GNU GPL licenses.
+ */
+function UUID() {
+    var uuid = (function () {
+        var i,
+            c = "89ab",
+            u = [];
+        for (i = 0; i < 36; i += 1) {
+            u[i] = (Math.random() * 16 | 0).toString(16);
+        }
+        u[8] = u[13] = u[18] = u[23] = "-";
+        u[14] = "4";
+        u[19] = c.charAt(Math.random() * 4 | 0);
+        return u.join("");
+    })();
+    return {
+        toString: function () {
+            return uuid;
+        },
+        valueOf: function () {
+            return uuid;
+        }
+    };
 }
