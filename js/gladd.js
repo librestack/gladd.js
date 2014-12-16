@@ -3001,27 +3001,32 @@ Form.prototype.show = function(tab) {
 }
 
 /* submit form */
+Form.prototype.submitDelete = function() {
+    if (this.prompts['delete']) {
+        var q = this.prompts['delete'];
+    }
+    else {
+        var q = 'Delete ' + this.object + ' #' + this.id + '?';
+    }
+    if (!(confirm(q))) {
+        console.log('User cancelled delete');
+        return false;
+    }
+    console.log('User confirmed delete');
+    if (this.prompts[this.action + 'status']) {
+        showSpinner(this.prompts[this.action + 'status']);
+    }
+    else {
+        showSpinner('Deleting ' + this.object + ' #' + this.id + '...');
+    }
+    return this.delete();
+}
+
 Form.prototype.submit = function() {
     console.log('Form().submit() => ' + this.url);
+
     if (this.action === 'delete') {
-        if (this.prompts['delete']) {
-            var q = this.prompts['delete'];
-        }
-        else {
-            var q = 'Delete ' + this.object + ' #' + this.id + '?';
-        }
-        if (!(confirm(q))) {
-            console.log('User cancelled delete');
-            return false;
-        }
-        console.log('User confirmed delete');
-        if (this.prompts[this.action + 'status']) {
-            showSpinner(this.prompts[this.action + 'status']);
-        }
-        else {
-            showSpinner('Deleting ' + this.object + ' #' + this.id + '...');
-        }
-        return this.delete();
+        this.submitDelete();
     }
 
     var changed = this.tab.find('.dirty');
