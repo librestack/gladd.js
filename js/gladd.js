@@ -3005,7 +3005,7 @@ Form.prototype.submit = function() {
     console.log('Form().submit() => ' + this.url);
 
     if (this.action === 'delete') {
-        this.submitDelete();
+        return this.submitDelete();
     }
 
     var changed = this.tab.find('.dirty');
