@@ -2701,6 +2701,123 @@ Form.prototype.overrides = function() {
     /* override object variables etc. */
 }
 
+Form.prototype.prepareXML = function() {
+    var xml = createRequestXml();
+    var xmlsub = '';
+    var subrequest = false;
+
+    xml += '<' + this.object + '>';
+    var tag;
+    var form = this.tab.tablet.find('div.' + this.object + '.' + this.action + ' form');
+    var inputs = form.find('input,select,div.tr');
+    if (this.action !== 'create') {
+        inputs = inputs.filter('.dirty');
+    }
+    var dirtyflds = 0;
+    var f = this;
+    console.log(inputs.length + ' inputs etc found');
+    inputs.each(function() {
+        var name = $(this).attr('name');
+        var subform = $(this).closest('div.form');
+        var tr = $(this).closest('div.tr');
+        var deleted = tr.hasClass('deleted');
+
+        /* open subform tag? */
+        if (subform.length === 1) {
+            if (!(tr.hasClass('_subform'))) {
+                dirtyflds = tr.find('.dirty').filter(':not(.nosubmit)').length;
+                /* use data-tag if available, otherwise data-object */
+                if (subform.data('tag') !== undefined) {
+                    tag = subform.data('tag');
+                }
+                else {
+                    tag = subform.data('object');
+                }
+                /* tack in attributes */
+                var attrs = '';
+                var id = $(this).closest('div.tr').data('id');
+                if (id !== undefined) {
+                    attrs += ' id="' + id + '"';
+                }
+                else if (form.usesubrequests) {
+                    /* subform has no id - send as separate request */
+                    xmlsub = createRequestXml();
+                    subrequest = true;
+                }
+                else {
+                    /* subform has no id - track it with a uuid */
+                    attrs += ' uuid="' + UUID().toString() + '"';
+                }
+                if (deleted) attrs += ' is_deleted="true"';
+                if ($(this).is('div.tr')) attrs += '/';
+                xmlsub += '<' + tag + attrs + '>';
+                if (subrequest) {
+                    xmlsub += '<' + f.object + '>';
+                    xmlsub += f.id;
+                    xmlsub += '</' + f.object + '>';
+                }
+                tr.addClass('_subform');
+            }
+        }
+
+        /* save anything that has changed */
+        if (name && !deleted) {
+            if ((!$(this).hasClass('nosubmit')
+            && $(this).val() !== $(this).data('old'))
+            && (!($(this).data('old') === undefined &&
+            $(this).val() === '')))
+            {
+                console.log(name + ' has changed from "' + $(this).data('old')
+                        + '" to "' + $(this).val() + '"');
+                var myval = $(this).val();
+                if (Array.isArray(myval) === false) {
+                    myval = [myval];
+                }
+                for (var i = 0; i < myval.length; i++) {
+                    var o = new Object();
+                    if (customFormFieldHandler($(this), o) === true) {
+                        xmlsub += o.xml;
+                    }
+                    else {
+                        xmlsub += '<' + name + '>';
+                        xmlsub += escapeHTML(myval[i]);
+                        xmlsub += '</' + name + '>';
+                    }
+                }
+            }
+        }
+
+        /* close subform tag ? */
+        if (subform.length === 1 && tr.is(':visible')) {
+            if (--dirtyflds === 0) {
+                xmlsub += '</' + tag + '>';
+                if (subrequest) {
+                    /* post subform */
+                    xmlsub += '</data></request>';
+                    var collection = tag + 's';
+                    var subform = new Form(collection, 'create');
+                    subform.url = collection_url(collection);
+                    subform.xml = xmlsub;
+                    subform.customXML();
+                    subform.post();
+                    xmlsub = '';
+                    subrequest = false;
+                }
+                tr.removeClass('_subform');
+            }
+        }
+        if (!subrequest) {
+            xml += xmlsub;
+            xmlsub = '';
+        }
+    });
+    this.xml = xml;
+    this.customXML();
+    this.xml += '</' + this.object + '>';
+    this.xml += '</data></request>';
+    console.log(this.xml);
+}
+
 /* Fill html form with data */
 Form.prototype.populate = function() {
     console.log('Form().populate()');
@@ -3015,120 +3132,8 @@ Form.prototype.submit = function() {
         return false; /* nothing to save */
     }
 
-    var xml = createRequestXml();
-    var xmlsub = '';
-    var subrequest = false;
+    this.prepareXML();
 
-    xml += '<' + this.object + '>';
-    var tag;
-    var form = this.tab.tablet.find('div.' + this.object + '.' + this.action + ' form');
-    var inputs = form.find('input,select,div.tr');
-    if (this.action !== 'create') {
-        inputs = inputs.filter('.dirty');
-    }
-    var dirtyflds = 0;
-    var f = this;
-    console.log(inputs.length + ' inputs etc found');
-    inputs.each(function() {
-        var name = $(this).attr('name');
-        var subform = $(this).closest('div.form');
-        var tr = $(this).closest('div.tr');
-        var deleted = tr.hasClass('deleted');
-
-        /* open subform tag? */
-        if (subform.length === 1) {
-            if (!(tr.hasClass('_subform'))) {
-                dirtyflds = tr.find('.dirty').filter(':not(.nosubmit)').length;
-                /* use data-tag if available, otherwise data-object */
-                if (subform.data('tag') !== undefined) {
-                    tag = subform.data('tag');
-                }
-                else {
-                    tag = subform.data('object');
-                }
-                /* tack in attributes */
-                var attrs = '';
-                var id = $(this).closest('div.tr').data('id');
-                if (id !== undefined) {
-                    attrs += ' id="' + id + '"';
-                }
-                else if (form.usesubrequests) {
-                    /* subform has no id - send as separate request */
-                    xmlsub = createRequestXml();
-                    subrequest = true;
-                }
-                else {
-                    /* subform has no id - track it with a uuid */
-                    attrs += ' uuid="' + UUID().toString() + '"';
-                }
-                if (deleted) attrs += ' is_deleted="true"';
-                if ($(this).is('div.tr')) attrs += '/';
-                xmlsub += '<' + tag + attrs + '>';
-                if (subrequest) {
-                    xmlsub += '<' + f.object + '>';
-                    xmlsub += f.id;
-                    xmlsub += '</' + f.object + '>';
-                }
-                tr.addClass('_subform');
-            }
-        }
-
-        /* save anything that has changed */
-        if (name && !deleted) {
-            if ((!$(this).hasClass('nosubmit')
-            && $(this).val() !== $(this).data('old'))
-            && (!($(this).data('old') === undefined &&
-            $(this).val() === '')))
-            {
-                console.log(name + ' has changed from "' + $(this).data('old')
-                        + '" to "' + $(this).val() + '"');
-                var myval = $(this).val();
-                if (Array.isArray(myval) === false) {
-                    myval = [myval];
-                }
-                for (var i = 0; i < myval.length; i++) {
-                    var o = new Object();
-                    if (customFormFieldHandler($(this), o) === true) {
-                        xmlsub += o.xml;
-                    }
-                    else {
-                        xmlsub += '<' + name + '>';
-                        xmlsub += escapeHTML(myval[i]);
-                        xmlsub += '</' + name + '>';
-                    }
-                }
-            }
-        }
-
-        /* close subform tag ? */
-        if (subform.length === 1 && tr.is(':visible')) {
-            if (--dirtyflds === 0) {
-                xmlsub += '</' + tag + '>';
-                if (subrequest) {
-                    /* post subform */
-                    xmlsub += '</data></request>';
-                    var collection = tag + 's';
-                    var subform = new Form(collection, 'create');
-                    subform.url = collection_url(collection);
-                    subform.xml = xmlsub;
-                    subform.customXML();
-                    subform.post();
-                    xmlsub = '';
-                    subrequest = false;
-                }
-                tr.removeClass('_subform');
-            }
-        }
-        if (!subrequest) {
-            xml += xmlsub;
-            xmlsub = '';
-        }
-    });
-    this.xml = xml;
-    this.customXML();
-    this.xml += '</' + this.object + '>';
-    this.xml += '</data></request>';
-    console.log(this.xml);
     /* tell user to wait */
     if (this.prompts[this.action + 'status']) {
         showSpinner(this.prompts[this.action + 'status']);
