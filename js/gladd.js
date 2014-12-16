@@ -3144,6 +3144,7 @@ Form.prototype.submit = function() {
     else {
         showSpinner();
     }
+
     this.post();
 }
 
