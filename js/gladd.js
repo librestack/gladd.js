@@ -2465,6 +2465,7 @@ function Form(object, action, title, id) {
     this.title = title;
     this.data = {};
     this.sources = this.dataSources();
+    this.processReturnedData = true; /* process returned xml data after save? */
     this.prompts = {};
     this.subforms = 0;
     this.usesubrequests = false; /* if true, post subforms separately */
@@ -3167,6 +3168,11 @@ Form.prototype.submitSuccess = function(xml) {
 
     if (this.submitSuccessCustom(xml)) return false;
 
+    /* if returned data contained uuid <-> id mappings, process */
+    this.updateSubformIds(xml);
+
+    if (!(this.processReturnedData)) return false;
+
     /* We received some data back. Display it. */
     this.id = $(xml).find('id').text();
     if (!this.id) console.log('id not found');
@@ -3227,6 +3233,37 @@ Form.prototype.updateFormTotals = function(ctl) {
         subtotal = String(subtotal).formatCurrency();
     }
     c.val(subtotal);
+}
+
+/* go through subform rows, filling in missing id data */
+Form.prototype.updateSubformIds = function(xml) {
+    var form = this.tab.tablet.find('div.' + this.object + '.' + this.action
+            + ' form');
+    var ctr = 0;
+    var uuidctr = 0;
+    form.find('div.form div.subformwrapper div.tr').each(function() {
+            var id = $(this).data('id');
+            var uuid = $(this).data('uuid');
+            ctr++;
+            if (id === undefined) {
+                console.log('row #' + ctr + ' has no id');
+                if (uuid !== undefined) {
+                    console.log('row has uuid');
+                    id = $(xml).find('uuid:contains(' + uuid +')')
+                        .closest('row').find('id').text();
+                    if (id !== undefined) {
+                        console.log(uuid + ' => id #' + id);
+                        $(this).data('id', id);
+                        uuidctr++;
+                    }
+                    else {
+                        console.log('no id found for ' + uuid);
+                    }
+                }
+            }
+    });
+
+    return uuidctr;
 }
 
 Form.prototype.updateMap = function() {
