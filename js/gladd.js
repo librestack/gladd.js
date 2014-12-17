@@ -2716,26 +2716,26 @@ Form.prototype.prepareXML = function() {
         var subform = $(this).closest('div.form');
         var tr = $(this).closest('div.tr');
         var deleted = tr.hasClass('deleted');
+        var datatag = subform.data('tag');
 
         /* open subform tag? */
         if (subform.length === 1 && (dirtyflds === 0)) {
             dirtyflds = tr.find('.dirty').filter(':not(.nosubmit)').length;
+
             /* use data-tag if available, otherwise data-object */
-            if (subform.data('tag') !== undefined) {
-                tag = subform.data('tag');
-            }
-            else {
-                tag = subform.data('object');
-            }
+            tag = (datatag !== undefined) ? datatag : subform.data('object');
+
             /* tack in attributes */
             var attrs = '';
-            var id = $(this).closest('div.tr').data('id');
+            var id = tr.data('id');
             if (id !== undefined) {
                 attrs += ' id="' + id + '"';
             }
             else {
                 /* subform has no id - track it with a uuid */
-                attrs += ' uuid="' + UUID().toString() + '"';
+                var uuid = UUID().toString();
+                attrs += ' uuid="' + uuid + '"';
+                tr.data('uuid', uuid);
             }
             if (deleted) attrs += ' is_deleted="true"';
             if ($(this).is('div.tr') && $(this).hasClass('dirty')) attrs += '/';
@@ -2949,21 +2949,22 @@ Form.prototype.rowAdd = function(subform) {
     row.removeData();
     row.find('input').each(function() {
         var d = $(this).data('default');
-        if ($(this).is('[readonly]') === false) {
-            $(this).addClass('dirty'); /* new row - mark all writable fields dirty */
-        }
         $(this).val((d !== undefined) ? d : '');
-        $(this).data('old', $(this).val('')); /* note the unmodified value */
+        $(this).data('old', $(this).val()); /* note the unmodified value */
         /* reset placeholder */
         if ($(this).data('placeholder.orig') !== undefined) {
             $(this).attr('placeholder', $(this).data('placeholder.orig'));
+        }
+        if ($(this).is('[readonly]') === false) {
+            /* new row - mark all fields clean */
+            $(this).removeClass('dirty');
         }
     });
     row.find('select').each(function() {
         var d = $(this).find('option:first').val();
         $(this).val(d);
         $(this).data('old', d);
-        $(this).addClass('dirty');
+        //$(this).addClass('dirty');
     });
 
     var wrapper = subform.find('div.subformwrapper');
@@ -3164,7 +3165,7 @@ Form.prototype.submitSuccess = function(xml) {
 
     TABS.refresh(this.collection); /* refresh any tabs for this collection */
 
-    this.submitSuccessCustom(xml);
+    if (this.submitSuccessCustom(xml)) return false;
 
     /* We received some data back. Display it. */
     this.id = $(xml).find('id').text();
