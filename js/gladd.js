@@ -2706,7 +2706,8 @@ Form.prototype.prepareXML = function() {
     var dirtyflds = 0;
     var f = this;
     var form = this.tab.tablet.find('div.' + this.object + '.' + this.action + ' form');
-    var inputs = form.find('input,select,div.tr').filter('.dirty');
+    var inputs = form.find('input,select,div.tr')
+        .filter('.dirty').filter(':not(.nosubmit)');
     var tag;
     var xml = createRequestXml();
     console.log(inputs.length + ' inputs found');
@@ -2719,9 +2720,12 @@ Form.prototype.prepareXML = function() {
         var deleted = tr.hasClass('deleted');
         var datatag = subform.data('tag');
 
+        console.log('dirtyflds=' + dirtyflds);
+
         /* open subform tag? */
         if (subform.length === 1 && (dirtyflds === 0)) {
             dirtyflds = tr.find('.dirty').filter(':not(.nosubmit)').length;
+            if (deleted) dirtyflds++;
 
             /* use data-tag if available, otherwise data-object */
             tag = (datatag !== undefined) ? datatag : subform.data('object');
@@ -2738,8 +2742,7 @@ Form.prototype.prepareXML = function() {
                 attrs += ' uuid="' + uuid + '"';
                 tr.data('uuid', uuid);
             }
-            if (deleted) attrs += ' is_deleted="true"';
-            if ($(this).is('div.tr') && $(this).hasClass('dirty')) attrs += '/';
+            if (deleted) attrs += ' is_deleted="true"/';
             xml += '<' + tag + attrs + '>';
         }
 
@@ -2768,7 +2771,7 @@ Form.prototype.prepareXML = function() {
         }
 
         /* close subform tag? */
-        if (subform.length === 1 && --dirtyflds === 0) {
+        if (subform.length === 1 && --dirtyflds === 0 && !deleted) {
             xml += '</' + tag + '>';
         }
     });
@@ -2917,7 +2920,7 @@ Form.prototype.reset = function() {
     console.log('Form().reset()');
     var t = this.tab.tablet;
     var f = t.find('form');
-    f.find('input,select').filter('.dirty').each(function() {
+    f.find('input,select').filter('.dirty .zeroed').each(function() {
         console.log($(this).attr("name"));
         if (($(this).val() !== $(this).data('old'))
         && ($(this).data('old') !== undefined))
@@ -2930,7 +2933,7 @@ Form.prototype.reset = function() {
             $(this).attr('placeholder', $(this).data('placeholder.orig'));
             $(this).trigger('change');
         }
-        $(this).removeClass('dirty');
+        $(this).removeClass('dirty zeroed');
     });
     /* restore deleted rows */
     f.find('div.tr').filter('.dirty').each(function() {
@@ -2965,7 +2968,6 @@ Form.prototype.rowAdd = function(subform) {
         var d = $(this).find('option:first').val();
         $(this).val(d);
         $(this).data('old', d);
-        //$(this).addClass('dirty');
     });
 
     var wrapper = subform.find('div.subformwrapper');
@@ -2991,7 +2993,7 @@ Form.prototype.rowDelete = function(ctl) {
     else { /* row needs to be marked deleted on the server */
         var td = row.find('div.td');
         row.addClass('dirty deleted hidden');
-        row.find('.currency').val('0.00').addClass('dirty');
+        row.find('.currency').val('0.00').addClass('zeroed');
     }
     this.updateAllTotals();
 }
