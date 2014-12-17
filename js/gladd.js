@@ -2388,6 +2388,13 @@ function isDate(datestring) {
     return (!isNaN(dte) && datestring.length == 10);
 }
 
+function nilTag(name) {
+    var tag = '<' + name + ' ';
+    tag += 'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ';
+    tag += 'xsi:nil="true"/>';
+    return tag;
+}
+
 /* setTimeout hacks 
   source: https://developer.mozilla.org/en-US/docs/Web/API/Window.setTimeout */
 var __nativeST__ = window.setTimeout,
@@ -2760,6 +2767,9 @@ Form.prototype.prepareXML = function() {
                     var o = new Object();
                     if (customFormFieldHandler($(this), o) === true) {
                         xml += o.xml;
+                    }
+                    else if (myval[i] === '' && $(this).hasClass('datefield')) {
+                        xml += nilTag(name);
                     }
                     else {
                         xml += '<' + name + '>';
