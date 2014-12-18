@@ -1492,12 +1492,6 @@ function displaySubformData(view, parentid, xml, tab) {
     mytab.find('button.linkcontact').click(function() {
         btnClickLinkContact(parentid, tab);
     });
-
-    /* "Apply Tax" button event handler for product form */
-    mytab.find('button.taxproduct').click(function() {
-        var c = $(this).parent().parent().find('select.tax').val();
-        taxProduct(parentid, c, true, tab);
-    });
 }
 
 /*****************************************************************************/
