@@ -560,8 +560,6 @@ function showQuery(collection, title, sort, tab) {
             if (tab) {
                 if (tab.children().length > 0) {
                     /* tab has contents - leave them alone on failure */
-                    console.log('failed to load ' + collection + '.  Retrying.');
-                    showQuery(collection, title, sort, tab);
                     return false;
                 }
             }
