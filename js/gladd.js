@@ -2776,10 +2776,7 @@ Form.prototype.prepareXML = function() {
 
         /* save anything that has changed */
         if (name && !deleted) {
-            if ((!$(this).hasClass('nosubmit')
-            && $(this).val() !== $(this).data('old'))
-            && (!($(this).data('old') === undefined && $(this).val() === '')))
-            {
+            if (!$(this).hasClass('nosubmit')) {
                 var myval = $(this).val();
                 if (Array.isArray(myval) === false) {
                     myval = [myval];
@@ -2964,7 +2961,7 @@ Form.prototype.reset = function() {
             $(this).attr('placeholder', $(this).data('placeholder.orig'));
             $(this).trigger('change');
         }
-        $(this).removeClass('dirty zeroed');
+        $(this).removeClass('dirty userdefined zeroed');
     });
     /* restore deleted rows */
     f.find('div.tr').filter('.dirty').each(function() {
