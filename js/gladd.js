@@ -2554,10 +2554,14 @@ Form.prototype.events = function() {
         form.onChange($(this));
         return false;
     });
-    t.find('input,select').filter(':not([readonly])').change(function() {
+    t.find('input,select').filter(':not([readonly])')
+    .change(function() {
         if ($(this).val() !== $(this).data('old')) {
             $(this).addClass('dirty');
         }
+    })
+    .blur(function() {
+            form.onBlur($(this));
     });
     customFormEvents(this.tab, this.object, this.action, this.id);
 }
@@ -2686,6 +2690,19 @@ Form.prototype.load = function() {
     return this;
 }
 
+Form.prototype.onBlur = function(ctl) {
+    if (ctl.val() !== ctl.data('old')) {
+        /* control changed while it had focus - probably the user */
+        if (ctl.val() === '') {
+            /* user cleared this value - clear flag */
+            ctl.removeClass('userdefined');
+        }
+        else {
+            ctl.addClass('userdefined');
+        }
+    }
+}
+
 /* handle form controls with onchange events */
 Form.prototype.onChange = function(ctl) {
     console.log('Form().onChange()');
@@ -2696,6 +2713,11 @@ Form.prototype.onChange = function(ctl) {
         ctl.val(decimalPad(roundHalfEven(ctl.val(), 2), 2));
     }
     if (ctl.hasClass('sum')) this.updateFormTotals(ctl);
+    this.onChangeCustom(ctl);
+}
+
+/* to be overridden by application */
+Form.prototype.onChangeCustom = function(ctl) {
 }
 
 /* to be overridden by application */
