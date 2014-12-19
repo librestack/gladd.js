@@ -1738,10 +1738,11 @@ function submitFormError(object, action, id) {
 /*****************************************************************************/
 /* return the singular object name for a given collection */
 function collectionObject(c) {
-    if (c == 'salesinvoices') {
-        return 'salesinvoice';
+    var object = collectionObjectCustom(c);
+    if (object.length > 0) {
+        return object;
     }
-    else if (c.substring(c.length - 2) == 'es') {
+    else if (c.substring(c.length - 2) === 'es') {
         /* plural ending in 'es' */
         return c.substring(0, c.length - 2);
     }
@@ -1750,6 +1751,10 @@ function collectionObject(c) {
          * - lop off the last character and hope for the best */
         return c.substring(0, c.length - 1);
     }
+}
+
+/* to be overridden by application */
+function collectionObjectCustom(collection) {
 }
 
 /*****************************************************************************/
