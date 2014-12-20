@@ -2865,6 +2865,11 @@ Form.prototype.populate = function() {
     }
     this._populateSubforms();
 
+    /* note values for reset() */
+    w.find('input,select').each(function() {
+        $(this).data('old', $(this).val());
+    })
+
     /* where do we POST this form? */
     this.url = collection_url(this.collection);
     if (this.id !== undefined) this.url += this.id;
@@ -2946,13 +2951,20 @@ Form.prototype.reset = function() {
     console.log('Form().reset()');
     var t = this.tab.tablet;
     var f = t.find('form');
-    f.find('input,select').filter('.dirty .zeroed').each(function() {
-        console.log($(this).attr("name"));
-        if (($(this).val() !== $(this).data('old'))
-        && ($(this).data('old') !== undefined))
-        {
+    var o;
+    var old;
+    f.find('input,select').filter('.dirty,.zeroed').each(function() {
+        var name = $(this).attr("name");
+        console.log(name);
+        if ($(this).val() !== $(this).data('old')) {
+            if ($(this).data('old') === undefined) {
+                o = ($(this).find('option[value="-1"]').length > 0) ? -1 : 0;
+                old = ($(this).is('select')) ? o : '';
+                $(this).data('old', old);
+            }
             console.log('resetting value to ' + $(this).data('old'));
             $(this).val($(this).data('old'));
+            $(this).trigger('change');
         }
         /* reset placeholder */
         if ($(this).data('placeholder.orig') !== undefined) {
