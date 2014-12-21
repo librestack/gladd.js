@@ -684,7 +684,7 @@ function populateForm(tab, object, xml) {
             /* set field value */
             var fld = mytab.find('form.' + object + " [name='" + tagName + "']");
             fld.val(tagValue);
-            fld.data('old', tagValue); /* keep a note of the unmodifed value */
+            fld.data('orig', tagValue); /* keep a note of the unmodifed value */
             fld.trigger("liszt:updated"); /* ensure chosen type combos update */
 
             /* get location data, giving preference to postcode */
@@ -1594,7 +1594,7 @@ function submitForm(object, action, id) {
                                 xml += '>';
                             }
                             /* save anything that has changed */
-                            if ($(this).val() != $(this).data('old')) {
+                            if ($(this).val() != $(this).data('orig')) {
                                 xml += '<' + name + '>';
                                 xml += escapeHTML($(this).val());
                                 xml += '</' + name + '>';
@@ -2559,7 +2559,7 @@ Form.prototype.events = function() {
     });
     t.find('input,select').filter(':not([readonly])')
     .change(function() {
-        if ($(this).val() !== $(this).data('old')) {
+        if ($(this).val() !== $(this).data('orig')) {
             $(this).addClass('dirty');
         }
     })
@@ -2694,7 +2694,7 @@ Form.prototype.load = function() {
 }
 
 Form.prototype.onBlur = function(ctl) {
-    if (ctl.val() !== ctl.data('old')) {
+    if (ctl.val() !== ctl.data('orig')) {
         /* control changed while it had focus - probably the user */
         if (ctl.val() === '') {
             /* user cleared this value - clear flag */
@@ -2848,7 +2848,7 @@ Form.prototype.populate = function() {
                     + ' [name="' + tagName + '"]');
                 if (fld.length > 0) {
                     fld.val(tagValue);          /* set field value */
-                    fld.data('old', tagValue);  /* note the unmodified value */
+                    fld.data('orig', tagValue);  /* note the unmodified value */
                     if (form.hasMap()) {        /* store map geo data */
                         if (MAPFIELDS[form.object].indexOf(tagName) != -1
                         && tagValue.length > 0)
@@ -2867,7 +2867,7 @@ Form.prototype.populate = function() {
 
     /* note values for reset() */
     w.find('input,select').each(function() {
-        $(this).data('old', $(this).val());
+        $(this).data('orig', $(this).val());
     })
 
     /* where do we POST this form? */
@@ -2908,7 +2908,7 @@ Form.prototype._populateSubforms = function() {
                     var ctl = subrows.eq(i).find('[name="' + tagName + '"]');
                     ctl.val(tagValue);
                     console.log(tagValue);
-                    ctl.data('old', tagValue);
+                    ctl.data('orig', tagValue);
                     ctl.removeClass('dirty');
                     if (ctl.hasClass('formfill')) form.formFill(ctl);
                 });
@@ -2956,14 +2956,14 @@ Form.prototype.reset = function() {
     f.find('input,select').filter('.dirty,.zeroed').each(function() {
         var name = $(this).attr("name");
         console.log(name);
-        if ($(this).val() !== $(this).data('old')) {
-            if ($(this).data('old') === undefined) {
+        if ($(this).val() !== $(this).data('orig')) {
+            if ($(this).data('orig') === undefined) {
                 o = ($(this).find('option[value="-1"]').length > 0) ? -1 : 0;
                 old = ($(this).is('select')) ? o : '';
-                $(this).data('old', old);
+                $(this).data('orig', old);
             }
-            console.log('resetting value to ' + $(this).data('old'));
-            $(this).val($(this).data('old'));
+            console.log('resetting value to ' + $(this).data('orig'));
+            $(this).val($(this).data('orig'));
             $(this).trigger('change');
         }
         /* reset placeholder */
@@ -2992,7 +2992,7 @@ Form.prototype.rowAdd = function(subform) {
     row.find('input').each(function() {
         var d = $(this).data('default');
         $(this).val((d !== undefined) ? d : '');
-        $(this).data('old', $(this).val()); /* note the unmodified value */
+        $(this).data('orig', $(this).val()); /* note the unmodified value */
         /* reset placeholder */
         if ($(this).data('placeholder.orig') !== undefined) {
             $(this).attr('placeholder', $(this).data('placeholder.orig'));
@@ -3005,7 +3005,7 @@ Form.prototype.rowAdd = function(subform) {
     row.find('select').each(function() {
         var d = $(this).find('option:first').val();
         $(this).val(d);
-        $(this).data('old', d);
+        $(this).data('orig', d);
     });
 
     var wrapper = subform.find('div.subformwrapper');
