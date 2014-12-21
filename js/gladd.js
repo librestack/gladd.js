@@ -1709,12 +1709,12 @@ function submitFormSuccess(object, action, id, collection, xml) {
         }
     }
 
-    if (action == 'create') {
+    if (action === 'create') {
         /* clear form ready for more data entry */
         console.log('refreshing data entry form');
         getForm(object, action, TABS.active.title);
     }
-    else { /* update, so check tab title is correct */
+    else if (action === 'update') { /* update, so check tab title is correct */
         var title = $(xml).find('name').first().text();
         TABS.active.setTitle(title);
     }
