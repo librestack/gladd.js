@@ -983,9 +983,8 @@ function formatDatePickers(tab) {
     }).change(function() {
         /* Revert to previous value if date invalid */
         if (!(isDate($(this).val())) && ($(this).val().length > 0)) {
-            $(this).val($(this).data('prevValue'));
+            $(this).val($(this).data('prev'));
         }
-        $(this).data('prevValue', $(this).val());
     });
 }
 
@@ -2694,7 +2693,12 @@ Form.prototype.load = function() {
 }
 
 Form.prototype.onBlur = function(ctl) {
-    if (ctl.val() !== ctl.data('orig')) {
+    if (ctl.data('prev') === undefined) {
+        console.log('no prev, using orig');
+        ctl.data('prev', ctl.data('orig'));
+    }
+    if (ctl.val() !== ctl.data('prev')) {
+        console.log(ctl.val() + ' != ' + ctl.data('prev'));
         /* control changed while it had focus - probably the user */
         if (ctl.val() === '') {
             /* user cleared this value - clear flag */
@@ -2703,6 +2707,7 @@ Form.prototype.onBlur = function(ctl) {
         else {
             ctl.addClass('userdefined');
         }
+        ctl.data('prev', ctl.val());
     }
 }
 
