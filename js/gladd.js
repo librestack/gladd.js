@@ -2556,14 +2556,14 @@ Form.prototype.events = function() {
         form.onChange($(this));
         return false;
     });
-    t.find('input,select').filter(':not([readonly])')
-    .change(function() {
+    t.find('input,select').filter(':not([readonly])').change(function() {
         if ($(this).val() !== $(this).data('orig')) {
             $(this).addClass('dirty');
         }
-    })
-    .blur(function() {
+    }).blur(function() {
             form.onBlur($(this));
+    }).keypress(function(e) {
+        form.onKeyPressCustom(e, $(this));
     });
     customFormEvents(this.tab, this.object, this.action, this.id);
 }
@@ -2726,6 +2726,10 @@ Form.prototype.onChange = function(ctl) {
 
 /* to be overridden by application */
 Form.prototype.onChangeCustom = function(ctl) {
+}
+
+/* to be overidden by application */
+Form.prototype.onKeyPressCustom = function(e, ctl) {
 }
 
 /* to be overridden by application */
