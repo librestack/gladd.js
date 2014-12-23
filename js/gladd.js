@@ -2561,7 +2561,7 @@ Form.prototype.events = function() {
             $(this).addClass('dirty');
         }
     }).blur(function() {
-            form.onBlur($(this));
+        form.onBlur($(this));
     }).keypress(function(e) {
         form.onKeyPressCustom(e, $(this));
     });
