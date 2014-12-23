@@ -2565,7 +2565,12 @@ Form.prototype.events = function() {
     }).keypress(function(e) {
         form.onKeyPressCustom(e, $(this));
     });
-    customFormEvents(this.tab, this.object, this.action, this.id);
+    customFormEvents(this.tab, this.object, this.action, this.id); /* deprecated */
+    this.eventsCustom();
+}
+
+/* to be overidden by application */
+Form.prototype.eventsCustom = function() {
 }
 
 /* load some data */
