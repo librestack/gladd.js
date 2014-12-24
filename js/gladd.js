@@ -2816,9 +2816,9 @@ Form.prototype.prepareXML = function() {
         }
     });
     this.xml = xml;
-    this.customXML();
     this.xml += '</' + this.object + '>';
     this.xml += '</data></request>';
+    this.customXML();
     console.log(this.xml);
 }
 
