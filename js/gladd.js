@@ -283,8 +283,10 @@ function closeTab(tabid) {
 /* Remove all tabs from working area */
 function removeAllTabs() {
     console.log('removeAllTabs()');
-    $('ul.tablist').children().remove();    /* tab headers */
-    $('div.tablet').fadeOut(300);           /* content */
+    /* tab headers */
+    $('ul.tablist').children().remove();
+    /* tab contents */
+    $('div.tablet').fadeOut(300, function() { $(this).remove(); });
     delete TABS;
     TABS = new Tabs();
 }
@@ -3570,7 +3572,7 @@ Tab.prototype.reload = function() {
 
 Tab.prototype.setContent = function(content) {
     console.log('tab(' + this.id + ').setContent()');
-    if (content == undefined) return;
+    if (content === undefined) return;
     var t = this.tablet;
     var statusmsg = t.find('.statusmsg').detach(); /* preserve status msg */
     t.empty().append(content);
