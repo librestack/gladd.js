@@ -2982,11 +2982,6 @@ Form.prototype.reset = function() {
             $(this).val($(this).data('orig'));
             $(this).trigger('change');
         }
-        /* reset placeholder */
-        if ($(this).data('placeholder.orig') !== undefined) {
-            $(this).attr('placeholder', $(this).data('placeholder.orig'));
-            $(this).trigger('change');
-        }
         $(this).removeClass('dirty userdefined zeroed');
     });
     /* restore deleted rows */
