@@ -3131,7 +3131,7 @@ Form.prototype.show = function(tab) {
 }
 
 /* submit form */
-Form.prototype.submit = function() {
+Form.prototype.submit = function(force) {
     console.log('Form().submit() => ' + this.url);
 
     if (this.action === 'delete') {
@@ -3140,7 +3140,7 @@ Form.prototype.submit = function() {
 
     var changed = this.tab.find('.dirty');
     console.log(changed.length + ' field(s) have changed.');
-    if (changed.length === 0) {
+    if (changed.length === 0 && force !== true) {
         console.log("nothing to save - skipping");
         return false; /* nothing to save */
     }
