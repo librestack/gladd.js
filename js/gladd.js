@@ -2800,7 +2800,7 @@ Form.prototype.prepareXML = function() {
                     if (customFormFieldHandler($(this), o) === true) {
                         xml += o.xml;
                     }
-                    else if (myval[i] === '' && $(this).hasClass('datefield')) {
+                    else if (myval[i] === '' && $(this).hasClass('nil')) {
                         xml += nilTag(name);
                     }
                     else {
