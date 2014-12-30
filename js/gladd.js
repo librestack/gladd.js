@@ -1962,6 +1962,7 @@ function displayResultsGeneric(xml, collection, title, sorted, tab, headers) {
             'divisions',
             'organisations',
             'products',
+            'salesinvoices',
         ].indexOf(collection) != -1) {
         refresh = true;
     }
