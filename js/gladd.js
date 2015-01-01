@@ -2582,7 +2582,7 @@ Form.prototype.fetchData = function() {
     var d = new Array(); /* array of deferreds */
     d.push(getHTML(form_url(this)));
     if (this.action !== 'create' && this['FORMDATA'] === undefined
-    && this.id !== undefined)
+    && this.id !== undefined && this.id !== false)
     {
         d.push(getXML(collection_url(this.collection) + this.id));
     }
