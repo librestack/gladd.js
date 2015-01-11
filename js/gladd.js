@@ -20,7 +20,7 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-var g_gladd_version = '1.0.2'
+var g_gladd_version = '1.0.4'
 console.log('Loaded gladd.js version ' + g_gladd_version);
 var g_authurl = '/auth/';
 var g_url_form = '/html/forms/';
