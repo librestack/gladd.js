@@ -2560,6 +2560,10 @@ Form.prototype.events = function() {
         form.onBlur($(this));
     }).keypress(function(e) {
         form.onKeyPressCustom(e, $(this));
+    }).keydown(function(e) {
+        form.onKeyDownCustom(e, $(this));
+    }).keyup(function(e) {
+        form.onKeyUpCustom(e, $(this));
     });
     customFormEvents(this.tab, this.object, this.action, this.id); /* deprecated */
     this.eventsCustom();
@@ -2731,6 +2735,14 @@ Form.prototype.onChangeCustom = function(ctl) {
 
 /* to be overidden by application */
 Form.prototype.onKeyPressCustom = function(e, ctl) {
+}
+
+/* to be overidden by application */
+Form.prototype.onKeyDownCustom = function(e, ctl) {
+}
+
+/* to be overidden by application */
+Form.prototype.onKeyUpCustom = function(e, ctl) {
 }
 
 /* to be overridden by application */
