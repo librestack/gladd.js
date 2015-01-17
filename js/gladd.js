@@ -438,15 +438,21 @@ function prepMenu() {
 
 function navicon() {
     $('div.navicon').click(function() {
-        $('nav.site').toggle();
+        $('nav.site').toggleClass('smallscreen-hidden');
     });
 }
 
 function navitab() {
     $('div.navitab-box-front').text('0');
     $('div.navitab').click(function() {
-        navitabIncrement();
+        toggleHeaderContentView();
     });
+}
+
+/* On small screens, switch between tab header and content view */
+function toggleHeaderContentView() {
+    $('div.tabheaders').toggleClass('smallscreen-hidden');
+    $('div.tabcontent').toggleClass('smallscreen-hidden');
 }
 
 function navitabIncrement() {
@@ -3482,6 +3488,8 @@ function Tab(title, content, activate, collection, refresh) {
     this.tabli.click(function(event) {
         event.preventDefault();
         activateTab(id);
+        /* on small screens, switch back to tab content view */
+        toggleHeaderContentView();
     });
 
     /* tab closer */
