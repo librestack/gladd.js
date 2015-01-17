@@ -267,7 +267,7 @@ function closeTab(tabid) {
     /* if tab is active, activate another */
     if ($('.tablet' + tabid).hasClass('active')) {
         console.log("tab (" + tabid + ") was active");
-        activateNextTab(tabid);
+        TABS.activateNext();
     }
 
     /* remove tab and content - call me in the morning if pain persists */
@@ -2293,7 +2293,7 @@ function mapUpdate() {
     var geodata = new Array();
     var selector = addressFields.join('"],input[name="');
     selector = 'input[name="' + selector + '"]';
-    mytab.find(selector).each(function() {
+    tab.find(selector).each(function() {
         if ($(this).val().length > 0) {
             geodata.push($(this).val());
         }
@@ -2303,7 +2303,7 @@ function mapUpdate() {
     if (geodata.length > 0) {
         var locString = geodata.join();
         console.log('locString:' + locString);
-        loadMap(locString, mytab);
+        loadMap(locString, tab);
     }
 }
 
@@ -3604,7 +3604,7 @@ Tabs.prototype.activate = function(id) {
 }
 
 /******************************************************************************
- * activateNextTab(tabid)
+ * activateNext()
  *
  * Activate the "next" tab.
  *
