@@ -2871,7 +2871,8 @@ Form.prototype.populate = function() {
                 if (fld.length > 0) {
                     fld.val(tagValue);          /* set field value */
                     fld.data('orig', tagValue);  /* note the unmodified value */
-                    if (form.hasMap()) {        /* store map geo data */
+                    if (form.hasMap() && MAPFIELDS[form.object]) {
+                        /* store map geo data */
                         if (MAPFIELDS[form.object].indexOf(tagName) != -1
                         && tagValue.length > 0)
                         {
