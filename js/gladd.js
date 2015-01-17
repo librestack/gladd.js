@@ -455,6 +455,11 @@ function toggleHeaderContentView() {
     $('div.tabcontent').toggleClass('smallscreen-hidden');
 }
 
+function navitabDecrement() {
+    var c = parseInt($('div.navitab-box-front').text());
+    $('div.navitab-box-front').text(--c);
+}
+
 function navitabIncrement() {
     var c = parseInt($('div.navitab-box-front').text());
     $('div.navitab-box-front').text(++c);
@@ -3653,12 +3658,14 @@ Tabs.prototype.add = function(tab) {
     tab.id = this.byId.length;
     this.byId.push(tab);
     this.byTitle[tab.title] = tab;
+    navitabIncrement();
 }
 
 Tabs.prototype.close = function(tab) {
     delete this.byId[tab.id];
     delete this.byTitle[tab.title];
     if (tab.active) this.activateNext();
+    navitabDecrement();
 }
 
 Tabs.prototype.count = function() {
