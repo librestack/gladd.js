@@ -437,9 +437,7 @@ function prepMenu() {
 }
 
 function navicon() {
-    $('div.navicon').click(function() {
-        $('nav.site').toggleClass('smallscreen-hidden');
-    });
+    $('div.navicon').click(togglemenu);
 }
 
 function navitab() {
@@ -449,10 +447,18 @@ function navitab() {
     });
 }
 
+/* On small screens, toggle menu visibility */
+function togglemenu() {
+    $('nav.site').toggleClass('smallscreen-hidden');
+}
+
 /* On small screens, switch between tab header and content view */
 function toggleHeaderContentView() {
-    $('div.tabheaders').toggleClass('smallscreen-hidden');
-    $('div.tabcontent').toggleClass('smallscreen-hidden');
+    var c = parseInt($('div.navitab-box-front').text());
+    if (c > 0) {
+        $('div.tabheaders').toggleClass('smallscreen-hidden');
+        $('div.tabcontent').toggleClass('smallscreen-hidden');
+    }
 }
 
 function navitabDecrement() {
