@@ -554,6 +554,7 @@ function clickMenu(event) {
     if (!ok) {
         addTab("Not Available", "<h2>Feature Not Available Yet</h2>", true);
     }
+    togglemenu();
 }
 
 function clickTabLink(ctl) {
