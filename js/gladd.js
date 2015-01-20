@@ -1103,11 +1103,13 @@ function statusHide() {
 /*****************************************************************************/
 function statusMessage(message, severity, fade) {
     var statusmsg = activeTab().find('div.statusmsg');
+    var statushtml = '<div class="statusmsg clearfix"/>';
+    var closer = $('<div class="closer">X</div>');
 
     if (statusmsg.length == 0) {
         /* no status box, create one */
         console.log("No div.statusmsg - creating one");
-        activeTab().find('div').first().prepend('<div class="statusmsg clearfix"/>');
+        activeTab().find('div').first().prepend(statushtml);
         var statusmsg = activeTab().find('div.statusmsg');
     }
 
@@ -1125,6 +1127,10 @@ function statusMessage(message, severity, fade) {
     }
 
     statusmsg.text(message);
+    statusmsg.append(closer);
+    closer.click(function() {
+        $(this).parent().fadeOut();
+    });
     statusmsg.show();
 
     if (fade) {
