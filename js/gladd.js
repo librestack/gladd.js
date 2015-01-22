@@ -2894,50 +2894,39 @@ Form.prototype.populate = function() {
 Form.prototype._populateSubforms = function() {
     console.log('Form()._populateSubforms()');
     var form = this;
-    var subform = this.workspace.find('form.subform');
     var i, d, tag;
-    if (subform.length === 0) {
-        subform = this.workspace.find('form div.form');
-        subform.each(function() {
-            form.subforms++;
-            console.log('populating subform...');
-            var source = $(this).data('source');
-            if (source === undefined) {
-                source = $(this).data('tag') + 's';
-            }
-            source += '/' + form.id + '/';
-            var data = $(form.data[source]);
-            var datarows = data.find('row');
-            var subrows = subform.find('div.subformwrapper div.tr');
-            for (i = subrows.length; i < datarows.length; i++) {
-                var row = form.rowAdd(subform);
-                row.find('.dirty').removeClass('dirty');
-            }
-            subrows = subform.find('div.subformwrapper div.tr');
-            $.each(datarows, function(i, d) {
-                var id = $(d).find('id');
-                if (id.length === 1) subrows.eq(i).data('id', id.text());
-                $(d).children().each(function(k, tag) {
-                    var tagName = tag.tagName;
-                    var tagValue = $(tag).text();
-                    var ctl = subrows.eq(i).find('[name="' + tagName + '"]');
-                    ctl.val(tagValue);
-                    console.log(tagValue);
-                    ctl.data('orig', tagValue);
-                    ctl.removeClass('dirty');
-                    if (ctl.hasClass('formfill')) form.formFill(ctl);
-                });
+    var subform = this.workspace.find('form div.form');
+    subform.each(function() {
+        form.subforms++;
+        console.log('populating subform...');
+        var source = $(this).data('source');
+        if (source === undefined) {
+            source = $(this).data('tag') + 's';
+        }
+        source += '/' + form.id + '/';
+        var data = $(form.data[source]);
+        var datarows = data.find('row');
+        var subrows = subform.find('div.subformwrapper div.tr');
+        for (i = subrows.length; i < datarows.length; i++) {
+            var row = form.rowAdd(subform);
+            row.find('.dirty').removeClass('dirty');
+        }
+        subrows = subform.find('div.subformwrapper div.tr');
+        $.each(datarows, function(i, d) {
+            var id = $(d).find('id');
+            if (id.length === 1) subrows.eq(i).data('id', id.text());
+            $(d).children().each(function(k, tag) {
+                var tagName = tag.tagName;
+                var tagValue = $(tag).text();
+                var ctl = subrows.eq(i).find('[name="' + tagName + '"]');
+                ctl.val(tagValue);
+                console.log(tagValue);
+                ctl.data('orig', tagValue);
+                ctl.removeClass('dirty');
+                if (ctl.hasClass('formfill')) form.formFill(ctl);
             });
         });
-    }
-    else {
-        /* deprecated - used by organisations form */
-        subform.each(function() {
-            form.subforms++;
-            var view = $(this).attr('action');
-            loadSubformData(view, form.id, form.tab.id);
-        });
-    }
+    });
     console.log('Data loaded for ' + form.subforms + ' subform(s)');
 }
 
