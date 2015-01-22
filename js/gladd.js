@@ -1055,16 +1055,6 @@ function displaySearchResults(view, query, xml) {
 function changeRadio(radio, object) {
     var station = radio.find('input[type="radio"]:checked').val();
     console.log('Radio tuned to ' + station);
-    if (object == 'organisation') {
-        if (station == '0') {
-            $('tr.contact.link').hide();
-            $('tr.contact.create').show();
-        }
-        else if (station == '1') {
-            $('tr.contact.create').hide();
-            $('tr.contact.link').show();
-        }
-    }
 }
 
 /*****************************************************************************/
