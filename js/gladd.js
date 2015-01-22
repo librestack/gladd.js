@@ -1815,28 +1815,6 @@ function fetchElementData(collection, id, object, action) {
         d.push(getXML(dataURL)); /* fetch element data */
     }
 
-    /* fetch any other data we need:
-     *  first, any subform rows,
-     *  then, combos in the order they appear on the form */
-    if (collection == 'accounts') {
-        d.push(getXML(collection_url('accounttypes')));
-    }
-    else if (collection == 'organisations') {
-        d.push(getXML(collection_url('organisation_contacts') + id + '/'));
-        d.push(getXML(collection_url('relationships')));
-        d.push(getXML(collection_url('contacts')));
-    }
-    else if (collection == 'products') {
-        d.push(getXML(collection_url('product_taxes') + id + '/'));
-        d.push(getXML(collection_url('accounts')));
-        d.push(getXML(collection_url('taxes')));
-    }
-    else if (collection == 'salesorders') {
-        d.push(getXML(collection_url('salesorderitems') + id + '/'));
-        d.push(getXML(collection_url('cycles')));
-        d.push(getXML(collection_url('products')));
-    }
-
     return d;
 }
 
