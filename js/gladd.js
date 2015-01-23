@@ -2458,6 +2458,7 @@ function Form(object, action, title, id) {
     this.sources = this.dataSources();
     this.processReturnedData = true; /* process returned xml data after save? */
     this.prompts = {};
+    this.dataforms = 0;
     this.subforms = 0;
     this.usesubrequests = false; /* if true, post subforms separately */
 }
@@ -2515,6 +2516,7 @@ Form.prototype.events = function() {
     console.log('Form().events()');
     var form = this;
     var t = this.tab.tablet;
+    if (t === undefined) return false;
     t.find('a.tablink').off().click(function() {
         clickTabLink()
     });
@@ -2879,6 +2881,7 @@ Form.prototype.populate = function() {
         }
     }
     this._populateSubforms();
+    this._populateDataforms();
 
     /* note values for reset() */
     w.find('input,select').each(function() {
@@ -2889,6 +2892,36 @@ Form.prototype.populate = function() {
     this.url = collection_url(this.collection);
     if (this.id !== undefined) this.url += this.id;
     console.log('Form().url=' + this.url);
+}
+
+/* Dataforms are separate (sub)forms that share a tab with other data,
+ * but unlike other subforms are saved independently from the main form */
+Form.prototype._populateDataforms = function() {
+    console.log('Form()._populateDataforms()');
+    var form = this;
+    var div = this.workspace.find('div.dataform');
+    var dataform;
+    var o;
+    var a;
+    div.each(function() {
+        form.dataforms++;
+        o = div.data('object');
+        a = div.data('action');
+        if (o !== undefined && a !== undefined) {
+            dataform = new Form(o, a);
+            console.log('Loading dataform ' + o + '.' + a);
+            dataform.tab = $(this);
+            dataform.id = form.id;
+            var d = dataform.load();
+            d.done(function() {
+                console.log('dataform loaded');
+                dataform.populate();
+                dataform.tab.append(dataform.workspace);
+                dataform.finalize();
+            });
+        }
+    });
+    console.log('Loaded ' + form.dataforms + ' dataform(s)');
 }
 
 Form.prototype._populateSubforms = function() {
@@ -3252,6 +3285,7 @@ Form.prototype.updateAllTotals = function() {
     console.log('Form().updateAllTotals()');
     var form = this;
     var t = this.tab.tablet;
+    if (t === undefined) return false;
     t.find('input.onchange.multiplicand').each(function() {
         form.rowMultiply($(this));
     });
@@ -3263,6 +3297,7 @@ Form.prototype.updateAllTotals = function() {
 Form.prototype.updateFormTotals = function(ctl) {
     console.log('Form().updateFormTotals()');
     var t = this.tab.tablet;
+    if (t === undefined) return false;
     var subtotal = '0.00';
     t.find('.sum').each(function() {
         subtotal = decimalAdd(subtotal, $(this).val());
