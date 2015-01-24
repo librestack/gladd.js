@@ -2460,6 +2460,7 @@ function Form(object, action, title, id) {
     this.processReturnedData = true; /* process returned xml data after save? */
     this.prompts = {};
     this.dataforms = 0;
+    this.htmlpanes = 0;
     this.subforms = 0;
     this.usesubrequests = false; /* if true, post subforms separately */
 }
@@ -2883,6 +2884,7 @@ Form.prototype.populate = function() {
     }
     this._populateSubforms();
     this._populateDataforms();
+    this._populateHTMLPanes();
 
     /* note values for reset() */
     w.find('input,select').each(function() {
@@ -2924,6 +2926,39 @@ Form.prototype._populateDataforms = function() {
         }
     });
     console.log('Loaded ' + form.dataforms + ' dataform(s)');
+}
+
+/* A htmlpane is just a div with class 'loadhtml' and a data-url.
+ * We blindly load the url and plonk it in the div. Handy for subforms where 
+ * we don't need to do any data handling client-side */
+Form.prototype._populateHTMLPanes = function() {
+    console.log('Form()._populateHTMLPanes()');
+    var form = this;
+    var div = this.workspace.find('div.loadhtml');
+    div.each(function() {
+        form.htmlpanes++;
+        var url = $(this).data('url');
+        if (url !== undefined) {
+            url = url.replace('{instance}', g_instance);
+            url = url.replace('{business}', g_business);
+            url = url.replace('{id}', form.id);
+            $.ajax({
+                url: url,
+                dataType: 'html',
+                beforeSend: function(xhr) {
+                    setAuthHeader(xhr);
+                },
+                success: function(html) {
+                    console.log('sucessfully loaded ' + url);
+                    div.empty().append(html);
+                },
+                error: function() {
+                    console.log('error loading ' + url);
+                }
+            });
+        }
+    });
+    console.log('Loaded ' + form.htmlpanes + ' html pane(s)');
 }
 
 Form.prototype._populateSubforms = function() {
