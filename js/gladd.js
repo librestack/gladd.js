@@ -2456,6 +2456,7 @@ function Form(object, action, title, id) {
     this.title = title;
     this.data = {};
     this.sources = this.dataSources();
+    this.parentform = null;
     this.processReturnedData = true; /* process returned xml data after save? */
     this.prompts = {};
     this.dataforms = 0;
@@ -2911,6 +2912,7 @@ Form.prototype._populateDataforms = function() {
             dataform = new Form(o, a);
             console.log('Loading dataform ' + o + '.' + a);
             dataform.tab = $(this);
+            dataform.parentform = form;
             dataform.id = form.id;
             var d = dataform.load();
             d.done(function() {
