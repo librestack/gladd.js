@@ -2951,6 +2951,7 @@ Form.prototype._populateHTMLPanes = function() {
                 success: function(html) {
                     console.log('sucessfully loaded ' + url);
                     div.empty().append(html);
+                    form.finalize();
                 },
                 error: function() {
                     console.log('error loading ' + url);
