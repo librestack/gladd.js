@@ -1548,11 +1548,6 @@ function submitForm(object, action, id) {
     var mytab = activeTab();
     var subid = null;
 
-    /* if object has subforms, which xml tag do we wrap them in? */
-    if (object == 'salesorder') {
-        var subobject = 'salesorderitem';
-    }
-
     console.log('Submitting form ' + object + ':' + action);
 
     /* find out where to send this */
@@ -2951,6 +2946,11 @@ Form.prototype._populateHTMLPanes = function() {
                 success: function(html) {
                     console.log('sucessfully loaded ' + url);
                     div.empty().append(html);
+                    div.find('select.populate:not(.sub)').each(function() {
+                        var xml = form.data[$(this).attr('data-source')];
+                        $(this).populate(xml);
+                        form.formatSelects();
+                    });
                     form.finalize();
                 },
                 error: function() {
