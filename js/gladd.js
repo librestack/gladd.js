@@ -2423,6 +2423,82 @@ function form_url(form) {
     return g_url_form + form.object + '/' + form.action + '.html';
 }
 
+function formToXML(form, object, action) {
+    var dirtyflds = 0;
+    var inputs = form.find('input,select,div.tr')
+        .filter('.dirty').filter(':not(.nosubmit)');
+    var tag;
+    var xml = createRequestXml();
+    console.log(inputs.length + ' inputs found');
+
+    xml += '<' + object + '>';
+    inputs.each(function() {
+        var name = $(this).attr('name');
+        var subform = $(this).closest('div.form');
+        var tr = $(this).closest('div.tr');
+        var deleted = tr.hasClass('deleted');
+        var datatag = subform.data('tag');
+
+        console.log('dirtyflds=' + dirtyflds);
+
+        /* open subform tag? */
+        if (subform.length === 1 && (dirtyflds === 0)) {
+            dirtyflds = tr.find('.dirty').filter(':not(.nosubmit)').length;
+            if (deleted) dirtyflds++;
+
+            /* use data-tag if available, otherwise data-object */
+            tag = (datatag !== undefined) ? datatag : subform.data('object');
+
+            /* tack in attributes */
+            var attrs = '';
+            var id = tr.data('id');
+            if (id !== undefined) {
+                attrs += ' id="' + id + '"';
+            }
+            else {
+                /* subform has no id - track it with a uuid */
+                var uuid = UUID().toString();
+                attrs += ' uuid="' + uuid + '"';
+                tr.data('uuid', uuid);
+            }
+            if (deleted) attrs += ' is_deleted="true"/';
+            xml += '<' + tag + attrs + '>';
+        }
+
+        /* save anything that has changed */
+        if (name && !deleted) {
+            if (!$(this).hasClass('nosubmit')) {
+                var myval = $(this).val();
+                if (Array.isArray(myval) === false) {
+                    myval = [myval];
+                }
+                for (var i = 0; i < myval.length; i++) {
+                    var o = new Object();
+                    if (customFormFieldHandler($(this), o) === true) {
+                        xml += o.xml;
+                    }
+                    else if (myval[i] === '' && $(this).hasClass('nil')) {
+                        xml += nilTag(name);
+                    }
+                    else {
+                        xml += '<' + name + '>';
+                        xml += escapeHTML(myval[i]);
+                        xml += '</' + name + '>';
+                    }
+                }
+            }
+        }
+
+        /* close subform tag? */
+        if (subform.length === 1 && --dirtyflds === 0 && !deleted) {
+            xml += '</' + tag + '>';
+        }
+    });
+    xml += '</' + object + '>';
+    xml += '</data></request>';
+    return xml;
+}
+
 /* Create a Form, populate and display it in a Tab */
 function showForm(object, action, title, id) {
     console.log('showForm(' + object + '.' + action + ')');
@@ -2739,82 +2815,6 @@ Form.prototype.onKeyUpCustom = function(e, ctl) {
 /* to be overridden by application */
 Form.prototype.overrides = function() {
     /* override object variables etc. */
-}
-
-function formToXML(form, object, action) {
-    var dirtyflds = 0;
-    var inputs = form.find('input,select,div.tr')
-        .filter('.dirty').filter(':not(.nosubmit)');
-    var tag;
-    var xml = createRequestXml();
-    console.log(inputs.length + ' inputs found');
-
-    xml += '<' + object + '>';
-    inputs.each(function() {
-        var name = $(this).attr('name');
-        var subform = $(this).closest('div.form');
-        var tr = $(this).closest('div.tr');
-        var deleted = tr.hasClass('deleted');
-        var datatag = subform.data('tag');
-
-        console.log('dirtyflds=' + dirtyflds);
-
-        /* open subform tag? */
-        if (subform.length === 1 && (dirtyflds === 0)) {
-            dirtyflds = tr.find('.dirty').filter(':not(.nosubmit)').length;
-            if (deleted) dirtyflds++;
-
-            /* use data-tag if available, otherwise data-object */
-            tag = (datatag !== undefined) ? datatag : subform.data('object');
-
-            /* tack in attributes */
-            var attrs = '';
-            var id = tr.data('id');
-            if (id !== undefined) {
-                attrs += ' id="' + id + '"';
-            }
-            else {
-                /* subform has no id - track it with a uuid */
-                var uuid = UUID().toString();
-                attrs += ' uuid="' + uuid + '"';
-                tr.data('uuid', uuid);
-            }
-            if (deleted) attrs += ' is_deleted="true"/';
-            xml += '<' + tag + attrs + '>';
-        }
-
-        /* save anything that has changed */
-        if (name && !deleted) {
-            if (!$(this).hasClass('nosubmit')) {
-                var myval = $(this).val();
-                if (Array.isArray(myval) === false) {
-                    myval = [myval];
-                }
-                for (var i = 0; i < myval.length; i++) {
-                    var o = new Object();
-                    if (customFormFieldHandler($(this), o) === true) {
-                        xml += o.xml;
-                    }
-                    else if (myval[i] === '' && $(this).hasClass('nil')) {
-                        xml += nilTag(name);
-                    }
-                    else {
-                        xml += '<' + name + '>';
-                        xml += escapeHTML(myval[i]);
-                        xml += '</' + name + '>';
-                    }
-                }
-            }
-        }
-
-        /* close subform tag? */
-        if (subform.length === 1 && --dirtyflds === 0 && !deleted) {
-            xml += '</' + tag + '>';
-        }
-    });
-    xml += '</' + object + '>';
-    xml += '</data></request>';
-    return xml;
 }
 
 Form.prototype.prepareXML = function() {
