@@ -2741,17 +2741,15 @@ Form.prototype.overrides = function() {
     /* override object variables etc. */
 }
 
-Form.prototype.prepareXML = function() {
+function formToXML(form, object, action) {
     var dirtyflds = 0;
-    var f = this;
-    var form = this.tab.tablet.find('div.' + this.object + '.' + this.action + ' form');
     var inputs = form.find('input,select,div.tr')
         .filter('.dirty').filter(':not(.nosubmit)');
     var tag;
     var xml = createRequestXml();
     console.log(inputs.length + ' inputs found');
 
-    xml += '<' + this.object + '>';
+    xml += '<' + object + '>';
     inputs.each(function() {
         var name = $(this).attr('name');
         var subform = $(this).closest('div.form');
@@ -2814,9 +2812,16 @@ Form.prototype.prepareXML = function() {
             xml += '</' + tag + '>';
         }
     });
+    xml += '</' + object + '>';
+    xml += '</data></request>';
+    return xml;
+}
+
+Form.prototype.prepareXML = function() {
+    var dirtyflds = 0;
+    var form = this.tab.tablet.find('div.' + this.object + '.' + this.action + ' form');
+    var xml = formToXML(form, this.object, this.action);
     this.xml = xml;
-    this.xml += '</' + this.object + '>';
-    this.xml += '</data></request>';
     this.customXML();
     console.log(this.xml);
 }
