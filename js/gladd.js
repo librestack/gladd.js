@@ -2950,6 +2950,10 @@ Form.prototype._populateHTMLPanes = function() {
                 },
                 success: function(html) {
                     console.log('sucessfully loaded ' + url);
+                    if (html === '(null)') {
+                        console.log('null result');
+                        html = '';
+                    }
                     div.empty().append(html);
                     div.find('select.populate:not(.sub)').each(function() {
                         var xml = form.data[$(this).attr('data-source')];
