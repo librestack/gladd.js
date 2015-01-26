@@ -3622,6 +3622,35 @@ Tab.prototype.events = function() {
     console.log('Tab().events()');
     var tab = this;
     var t = this.tablet;
+    /* set up drag and drop events */
+    this.tabhead.prop('draggable', true);
+    this.tabhead.on('dragenter dragleave dragover', function(e) {
+        e.preventDefault();
+    });
+    this.tabhead.on('dragstart', function(e) {
+        if (tab.form === undefined) return false;
+        e.originalEvent.dataTransfer.setData("title", tab.title);
+        e.originalEvent.dataTransfer.setData("object", tab.form.object);
+        e.originalEvent.dataTransfer.setData("id", tab.form.id);
+        console.log('Dragging: ' + tab.title);
+    });
+    this.tabhead.on('drop', function(e) {
+        e.preventDefault();
+        var title = e.originalEvent.dataTransfer.getData("title");
+        var object = e.originalEvent.dataTransfer.getData("object");
+        var id = e.originalEvent.dataTransfer.getData("id");
+        console.log('Dropped: ' + object + ' #' + id + ' (' + title + ')');
+        tab.eventsCustomDrop(title, object, id);
+    });
+    this.eventsCustom();
+}
+
+/* to be overidden by application */
+Tab.prototype.eventsCustom = function() {
+}
+
+/* to be overidden by application */
+Tab.prototype.eventsCustomDrop = function(title, object, id) {
 }
 
 /* perform jquery select on tab contents */
