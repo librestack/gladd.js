@@ -2958,7 +2958,9 @@ Form.prototype._populateHTMLPanes = function() {
                     div.find('select.populate:not(.sub)').each(function() {
                         var xml = form.data[$(this).attr('data-source')];
                         $(this).populate(xml);
-                        form.formatSelects();
+                        if ($(this).hasClass('chozify')) {
+                            $(this).chosen();
+                        }
                     });
                     form.finalize();
                 },
