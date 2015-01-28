@@ -838,23 +838,23 @@ function formEvents(tab, object, action, id) {
     var mytab = getTabById(tab);
 
     /* save button click handler */
-    mytab.find('button.save').click(function() {
+    mytab.find('button.save').off().click(function() {
         doFormSubmit(object, action, id);
     });
 
     /* Cancel button closes tab */
-    mytab.find('button.cancel').click(function() {
+    mytab.find('button.cancel').off().click(function() {
         TABS.active.close();
     });
 
     /* Reset button resets form */
-    mytab.find('button.reset').click(function(event) {
+    mytab.find('button.reset').off().click(function(event) {
         event.preventDefault();
         mytab.find('form:not(.subform)').get(0).reset();
     });
 
     /* deal with submit event */
-    mytab.find('form:not(.subform):not(.nosubmit)').submit(function(event) {
+    mytab.find('form:not(.subform):not(.nosubmit)').off().submit(function(event) {
         event.preventDefault();
         doFormSubmit(object, action, id);
     });
