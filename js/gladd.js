@@ -1951,10 +1951,10 @@ function displayResultsGeneric(xml, collection, title, sorted, tab, headers) {
         /* No results found */
         hideSpinner();
         if (collection == 'contacts') {
-            getForm('contact', 'create', 'Add New Contact');
+            showForm('contact', 'create', 'Add New Contact');
         }
         else if (collection == 'organisations') {
-            getForm('organisation', 'create', 'Add New Organisation');
+            showForm('organisation', 'create', 'Add New Organisation');
         }
         else if (collection == 'products') {
             showForm('product', 'create', 'Add New Product');
